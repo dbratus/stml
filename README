@@ -1,0 +1,13 @@
+Welcome to STML project!
+
+To get the latest stable version of the code pull [master] branch. 
+To get specific version pull [v#.#] branch corresponding to that version.
+To get the latest code pull [dev].
+
+To build and install stml utility:
+
+cd libstml
+make
+cd ../stml
+make
+sudo make install
