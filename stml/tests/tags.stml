@@ -1,0 +1,89 @@
+<!>Comment must not be written to the output.
+
+<s>
+
+Default paragraph 1
+
+Default paragraph 2
+
+<p>Single line paragraph.
+
+<p>
+Multi-line paragraph 1.
+Multi-line paragraph 2.
+
+Multi-line paragraph 3.
+<>
+
+<p al>Align left.
+
+<p ar>Align right.
+
+<p ac>Align center.
+
+<p aj>Align justify.
+
+<$p_align>ar
+
+<p>Default align right.
+
+<h 1>Single line heading 1.
+
+<h 1>
+Multi-line heading 1 1.
+Multi-line heading 1 2.
+
+Multi-line heading 1 3.
+<>
+
+<h 2>Single line heading 2.
+
+<h 3>Single line heading 3.
+
+<h 4>Single line heading 4.
+
+<h 5>Single line heading 5.
+
+<h 6>Single line heading 6.
+
+<c>Single line cite.
+
+<c>
+Cite line 1.
+
+Cite line 2.
+Cite line 3.
+<>
+
+<verse>
+Verse line 1.
+Verse line 2.
+Verse line 3.
+<>
+
+<pre>
+Pre line 1.
+
+Pre line 2.
+Pre line 3.
+<>
+
+<br>
+
+<ol>
+Ordered list option 1.
+
+Ordered list option 2.
+Ordered list option 3.
+<>
+
+<ul>
+Unordered list option 1.
+
+Unordered list option 1.
+Unordered list option 1.
+<>
+
+<hr>
+
+<>

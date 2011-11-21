@@ -1,0 +1,10 @@
+<doc>
+<$doc_title>Title
+<$embedded_css>
+.class {
+  text-align: left;
+};
+<>
+<>
+
+Document content.

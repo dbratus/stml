@@ -1,0 +1,82 @@
+<$h1_style>h1 style
+<$h1_class>h1 class
+
+<h 1>Heading 1
+
+<$h2_style>h2 style
+<$h2_class>h2 class
+
+<h 2>Heading 2
+
+<$h3_style>h3 style
+<$h3_class>h3 class
+
+<h 3>Heading 3
+
+<$h4_style>h4 style
+<$h4_class>h4 class
+
+<h 4>Heading 4
+
+<$h5_style>h5 style
+<$h5_class>h5 class
+
+<h 5>Heading 5
+
+<$h6_style>h6 style
+<$h6_class>h6 class
+
+<h 6>Heading 6
+
+<$p_style>p style;
+<$p_class>p class
+
+<p>Paragraph.
+
+Default paragraph.
+
+<$c_style>c style
+<$c_class>c class
+
+<$c_p_style>c p style
+<$c_p_class>c p class
+
+<c>Cite.
+
+<$verse_style>verse style
+<$verse_class>verse class
+
+<verse>Verse.
+
+<$pre_style>pre style
+<$pre_class>pre class
+
+<pre>Pre.
+
+<$ol_style>ol style
+<$ol_class>ol class
+
+<ol>
+Item 1.
+Item 2.
+Item 3.
+<>
+
+<$ul_style>ul style
+<$ul_class>ul class
+
+<ul>
+Item 1.
+Item 2.
+Item 3.
+<>
+
+<$s_style>s style
+<$s_class>s class
+
+<s>Section.
+
+<$hr_style>hr style
+<$hr_class>hr class
+
+<hr>

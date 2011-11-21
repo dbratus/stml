@@ -1,0 +1,35 @@
+
+Мама мыла раму.
+
+<$no_shys>y
+
+Мама мыла раму.
+
+<$no_shys>n
+
+Мама мыла раму.
+
+<$no_line_breaks>y
+
+Это
+должно
+быть
+одной
+строкой.
+
+<$no_line_breaks>n
+
+Это
+не 
+должно
+быть
+одной
+строкой.
+
+<$no_default_paragraphs>y
+
+No paragraph.
+
+<$no_default_paragraphs>n
+
+Paragraph
