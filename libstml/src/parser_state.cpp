@@ -377,8 +377,8 @@ ParserStates InlineTagParserState::process_char(wchar_t c,
 				throw StmlException(StmlException::NAMELESS_INLINE_TAG);
 			}
 
-			bool is_var;
-			if (is_var = is_variable()) {
+			bool is_var = is_variable();
+			if (is_var) {
 				generator->inject_variable(m_tag_name.substr(1, m_tag_name.length() - 1));
 			} else {
 				generator->open_inline_tag(m_tag_name);
