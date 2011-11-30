@@ -1,4 +1,4 @@
-#include <stdlib.h>
+#include <cstring>
 #include "../include/utf8.hpp"
 
 using namespace std;
