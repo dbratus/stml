@@ -20,7 +20,9 @@ public:
 	void reset();
 
 	/**
-	 * Increments the counter on the specified level.
+	 * Increments the counter at the specified level.
+	 *
+	 * @param level level of increment.
 	 */
 	void increment(int level);
 

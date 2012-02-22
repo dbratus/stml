@@ -338,7 +338,7 @@ class HtmlGenerator: public AbstractGenerator {
 
 public:
 	HtmlGenerator();
-	~HtmlGenerator();
+	virtual ~HtmlGenerator();
 
 	void document();
 	void header(int level);
@@ -354,8 +354,7 @@ public:
 	void section();
 	void horizontal_line();
 	void parameter(const std::wstring& name);
-	void image(int width, int height, bool width_percent, bool height_percent,
-			Alignment alignment);
+	void image(int width, int height, bool width_percent, bool height_percent, Alignment alignment);
 
 	void close_tag();
 	void inject_variable(const std::wstring& variable_name);

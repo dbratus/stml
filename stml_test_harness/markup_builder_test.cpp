@@ -21,12 +21,12 @@ void markup_builder_test() {
 
     stringstream out;
     bld.write(out);
-    cout << out.str() << endl;
+    //cout << out.str() << endl;
 
     string out_str;
     bld.append(out_str);
 
-    cout << out_str << endl;
+    //cout << out_str << endl;
     assert(out.str() == out_str);
 
     MarkupBuilder bld2(bld);
@@ -35,7 +35,6 @@ void markup_builder_test() {
     bld2.write(out2);
     assert(out.str() == out2.str());
 }
-
 
 void markup_builder_merge() {
 	MarkupBuilder bld1, bld2;

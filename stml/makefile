@@ -4,12 +4,20 @@ HTMLS = $(subst .stml,.html,$(wildcard tests/*.stml))
 HTML_DIFFS = $(subst .stml,.html.diff,$(wildcard tests/*.stml))
 INST = /usr/local/bin/stml
 BIN = bin/stml
+BIN_DEV = bin-dev/stml
 
-all: $(BIN)
+all: $(BIN) $(BIN_DEV)
 
 $(BIN): $(SRCS) | bin
 	$(CC) -o "$(BIN)" -L"../libstml/lib" -I"../libstml/include" $(SRCS) -l"stml"
 	chmod a+x $(BIN)
+
+$(BIN_DEV): $(SRCS) | bin-dev
+	$(CC) -o "$(BIN_DEV)" -g3 -fno-inline -O0 -L"../libstml/lib-dev" -I"../libstml/include" $(SRCS) -l"stml"
+	chmod a+x $(BIN_DEV)
+
+bin-dev:
+	mkdir bin-dev
 
 bin:
 	mkdir bin
@@ -21,6 +29,7 @@ install: $(INST)
 
 clean:
 	rm -fr bin
+	rm -fr bin-dev
 	rm -f tests/*.html
 	rm -f tests/*.html.diff
 

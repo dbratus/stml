@@ -46,5 +46,5 @@ void ru_language_test() {
         }
     }
 
-    bld.write(cout);
+    //bld.write(cout);
 }

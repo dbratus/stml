@@ -2,6 +2,8 @@
 */.project
 */.settings
 */lib
+*/lib-dev
 */bin
+*/bin-dev
 stml/in.stml
 stml/out.stml

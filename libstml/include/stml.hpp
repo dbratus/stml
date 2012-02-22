@@ -19,6 +19,12 @@ class TextParserState;
 class Tokenizer;
 class Language;
 class MarkupBuilder;
+class AbstractListIndexGenerator;
+class NumericListIndexGenerator;
+class MultiLevelNumericListIndexGenerator;
+class SingleLevelListIndexGenerator;
+class CharRangeIndexGenerator;
+class RomanNumbersIndexGenerator;
 
 typedef std::auto_ptr<AbstractGenerator> AbstractGeneratorPtr;
 typedef std::auto_ptr<AbstractParserState> AbstractParserStatePtr;
