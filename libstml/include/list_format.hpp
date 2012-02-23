@@ -32,7 +32,7 @@ public:
 	 * @param level Level of the item.
 	 */
 	inline AbstractListIndexGenerator* generator(int level) const {
-		return (level < MAX_GENERATORS) ? generator[level] : default_generator;
+		return (level < MAX_GENERATORS) ? generators[level] : default_generator;
 	}
 };
 

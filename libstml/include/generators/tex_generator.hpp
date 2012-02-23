@@ -110,7 +110,7 @@ class TexGenerator : public AbstractGenerator {
 
 public:
     TexGenerator();
-    ~TexGenerator();
+    virtual ~TexGenerator();
 
     void document();
     void header(int level);
@@ -125,8 +125,11 @@ public:
     void comment();
     void section();
     void horizontal_line();
-    void parameter(const std::wstring& name);
+    void variable(const std::wstring& name);
     void image(int width, int height, bool width_percent, bool height_percent, Alignment alignment);
+	void ordered_list_item(int level);
+	void unordered_list_item(int level);
+	void terminator();
 
     void close_tag();
     void inject_variable(const std::wstring& variable_name);

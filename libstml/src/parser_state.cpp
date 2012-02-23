@@ -7,15 +7,14 @@ using namespace std;
 using namespace stml;
 
 void AbstractParserState::init(const ParserData& parser_data) {
-	m_tag_mode = parser_data.tag_mode;
+	tag_mode = parser_data.tag_mode;
 }
 
 void StartParserState::init(const ParserData& parser_data) {
 	AbstractParserState::init(parser_data);
 }
 
-ParserStates StartParserState::process_char(wchar_t c,
-		AbstractGeneratorPtr& generator, ParserData& parser_data) {
+ParserStates StartParserState::process_char(wchar_t c, AbstractGeneratorPtr& generator, ParserData& parser_data) {
 	if (is_tag_open(c)) {
 		return PARSER_STATE_TAG;
 	} else {
@@ -28,21 +27,24 @@ ParserStates StartParserState::process_char(wchar_t c,
 }
 
 TagParserState::TagParserState() {
-	m_tags[TAG_DOCUMENT].reset(new DocumentTag());
-	m_tags[TAG_HEADER].reset(new HeaderTag());
-	m_tags[TAG_PARAGRAPH].reset(new ParagraphTag());
-	m_tags[TAG_LINK].reset(new LinkTag());
-	m_tags[TAG_PARAMETER].reset(new ParameterTag());
-	m_tags[TAG_CITE].reset(new CiteTag());
-	m_tags[TAG_VERSE].reset(new VerseTag());
-	m_tags[TAG_PREFORMATED].reset(new PreformatedTag());
-	m_tags[TAG_LINE_BREAK].reset(new LineBreakTag());
-	m_tags[TAG_ORDERED_LIST].reset(new OrderedListTag());
-	m_tags[TAG_UNORDERED_LIST].reset(new UnorderedListTag());
-	m_tags[TAG_COMMENT].reset(new CommentTag());
-	m_tags[TAG_SECTION].reset(new SectionTag());
-	m_tags[TAG_HORIZONTAL_LINE].reset(new HorizontalLineTag());
-	m_tags[TAG_IMAGE].reset(new ImageTag());
+	tags[TAG_DOCUMENT].reset(new DocumentTag());
+	tags[TAG_HEADER].reset(new HeaderTag());
+	tags[TAG_PARAGRAPH].reset(new ParagraphTag());
+	tags[TAG_LINK].reset(new LinkTag());
+	tags[TAG_VARIABLE].reset(new ParameterTag());
+	tags[TAG_CITE].reset(new CiteTag());
+	tags[TAG_VERSE].reset(new VerseTag());
+	tags[TAG_PREFORMATED].reset(new PreformatedTag());
+	tags[TAG_LINE_BREAK].reset(new LineBreakTag());
+	tags[TAG_ORDERED_LIST].reset(new OrderedListTag());
+	tags[TAG_UNORDERED_LIST].reset(new UnorderedListTag());
+	tags[TAG_COMMENT].reset(new CommentTag());
+	tags[TAG_SECTION].reset(new SectionTag());
+	tags[TAG_HORIZONTAL_LINE].reset(new HorizontalLineTag());
+	tags[TAG_IMAGE].reset(new ImageTag());
+	tags[TAG_ORDERED_LIST_ITEM].reset(new OrderedListItemTag());
+	tags[TAG_UNORDERED_LIST_ITEM].reset(new UnorderedListItemTag());
+	tags[TAG_TERMINATOR].reset(new TerminatorTag());
 }
 
 TagParserState::Tags stml::get_tag_by_name(const wstring& tag_name) {
@@ -62,7 +64,7 @@ TagParserState::Tags stml::get_tag_by_name(const wstring& tag_name) {
 		return TagParserState::TAG_VERSE;
 	} else if (tag_name == L"pre" || tag_name == L"преформат") {
 		return TagParserState::TAG_PREFORMATED;
-	} else if (tag_name == L"br" || tag_name == L"разр") {
+	} else if (tag_name == L"br" || tag_name == L"разрыв") {
 		return TagParserState::TAG_LINE_BREAK;
 	} else if (tag_name == L"ol" || tag_name == L"нс") {
 		return TagParserState::TAG_ORDERED_LIST;
@@ -74,6 +76,8 @@ TagParserState::Tags stml::get_tag_by_name(const wstring& tag_name) {
 		return TagParserState::TAG_HORIZONTAL_LINE;
 	} else if (tag_name == L"img" || tag_name == L"рис") {
 		return TagParserState::TAG_IMAGE;
+	} else if (tag_name == L".") {
+		return TagParserState::TAG_TERMINATOR;
 	}
 
 	return TagParserState::TAG_UNKNOWN;
@@ -82,56 +86,74 @@ TagParserState::Tags stml::get_tag_by_name(const wstring& tag_name) {
 void TagParserState::init(const ParserData& parser_data) {
 	AbstractParserState::init(parser_data);
 
-	m_current_string.clear();
-	m_current_tag = TAG_UNKNOWN;
-	m_closed = false;
-	m_opened = false;
+	current_string.clear();
+	current_tag = TAG_UNKNOWN;
+	closed = false;
+	opened = false;
+}
+
+bool TagParserState::all_chars_equal(const wstring& str, wchar_t c) {
+	for (wstring::const_iterator chr = str.begin(); chr != str.end(); ++chr) {
+		if (*chr != c) {
+			return false;
+		}
+	}
+
+	return true;
 }
 
 void TagParserState::init_current_tag(ParserData& parser_data) {
-	if (m_current_string[0] == L'$') {
-		m_current_tag = TAG_PARAMETER;
-		m_tags[m_current_tag]->set_defaults();
+	if (current_string[0] == L'$') {
+		current_tag = TAG_VARIABLE;
+		tags[current_tag]->set_defaults();
 
-		wstring param_name = m_current_string.substr(1,
-				m_current_string.length() - 1);
-		m_tags[m_current_tag]->set_arg(param_name);
-		m_current_string.clear();
+		wstring param_name = current_string.substr(1, current_string.length() - 1);
+		tags[current_tag]->set_arg(param_name);
+		current_string.clear();
 
 		parser_data.parse_text = false;
-	} else {
-		m_current_tag = get_tag_by_name(m_current_string);
+	} else if (all_chars_equal(current_string, L'#')) {
+		current_tag = TAG_ORDERED_LIST_ITEM;
 
-		if (m_current_tag == TAG_UNKNOWN) {
+		current_string.clear();
+		((OrderedListItemTag*)tags[current_tag].get())->set_level(current_string.size());
+	} else if (all_chars_equal(current_string, L'*')) {
+		current_tag = TAG_UNORDERED_LIST_ITEM;
+
+		current_string.clear();
+		((UnorderedListItemTag*)tags[current_tag].get())->set_level(current_string.size());
+	} else {
+		current_tag = get_tag_by_name(current_string);
+
+		if (current_tag == TAG_UNKNOWN) {
 			throw StmlException(StmlException::UNKNOWN_TAG);
 		}
 
-		m_current_string.clear();
-		m_tags[m_current_tag]->set_defaults();
+		current_string.clear();
+		tags[current_tag]->set_defaults();
 	}
 }
 
-ParserStates TagParserState::process_char(wchar_t c,
-		AbstractGeneratorPtr& generator, ParserData& parser_data) {
-	if (m_opened && !m_closed && is_tag_close(c)) {
-		m_closed = true;
+ParserStates TagParserState::process_char(wchar_t c, AbstractGeneratorPtr& generator, ParserData& parser_data) {
+	if (opened && !closed && is_tag_close(c)) {
+		closed = true;
 
-		if (m_current_tag == TAG_UNKNOWN && !m_current_string.empty()) {
+		if (current_tag == TAG_UNKNOWN && !current_string.empty()) {
 			init_current_tag(parser_data);
 		}
 
 		//The tag without name is the closing tag.
-		if (m_current_tag == TAG_UNKNOWN) {
+		if (current_tag == TAG_UNKNOWN) {
 			generator->close_tag();
 		} else {
-			if (!m_current_string.empty()) {
-				m_tags[m_current_tag]->set_arg(m_current_string);
+			if (!current_string.empty()) {
+				tags[current_tag]->set_arg(current_string);
 			}
-			m_tags[m_current_tag]->commit(generator);
+			tags[current_tag]->commit(generator);
 		}
 
 		return PARSER_STATE_TAG;
-	} else if (m_closed) {
+	} else if (closed) {
 		if (is_tag_open(c)) {
 			return PARSER_STATE_INLINE_TAG;
 		} else {
@@ -143,22 +165,22 @@ ParserStates TagParserState::process_char(wchar_t c,
 		}
 	} else {
 		//If tag name is not parsed yet.
-		if (m_current_tag == TAG_UNKNOWN) {
+		if (current_tag == TAG_UNKNOWN) {
 			if (is_space(c)) {//If space encountered, then the tag name has ended.
 				init_current_tag(parser_data);
 			} else if (is_tag_open(c)) {
-				m_opened = true;
+				opened = true;
 			} else {
-				m_current_string += c;
+				current_string += c;
 			}
 		} else {
 			//Ignore all spaces after the tag name and within the argument list.
 			if (!is_space(c)) {
 				if (is_tag_arg_separator(c)) {
-					m_tags[m_current_tag]->set_arg(m_current_string);
-					m_current_string.clear();
+					tags[current_tag]->set_arg(current_string);
+					current_string.clear();
 				} else {
-					m_current_string += c;
+					current_string += c;
 				}
 			}
 		}
@@ -168,7 +190,7 @@ ParserStates TagParserState::process_char(wchar_t c,
 }
 
 void TagParserState::HeaderTag::set_defaults() {
-	m_level = -1;
+	level = -1;
 }
 
 void TagParserState::HeaderTag::set_arg(const wstring& arg) {
@@ -177,55 +199,55 @@ void TagParserState::HeaderTag::set_arg(const wstring& arg) {
 		throw StmlException(StmlException::UNSUPPORTED_HEADER_LEVEL);
 	}
 
-	swscanf(arg.c_str(), L"%d", &m_level);
+	swscanf(arg.c_str(), L"%d", &level);
 
-	if (m_level < 1 || m_level > 9) {
+	if (level < 1 || level > 9) {
 		throw StmlException(StmlException::UNSUPPORTED_HEADER_LEVEL);
 	}
 }
 
 void TagParserState::HeaderTag::commit(AbstractGeneratorPtr& generator) {
-	generator->header(m_level);
+	generator->header(level);
 }
 
 void TagParserState::ParagraphTag::set_defaults() {
-	m_alignment = ALIGN_DEFAULT;
+	alignment = ALIGN_DEFAULT;
 }
 
 void TagParserState::ParagraphTag::set_arg(const wstring& arg) {
-	m_alignment = parse_alignment(arg);
+	alignment = parse_alignment(arg);
 }
 
 void TagParserState::ParagraphTag::commit(AbstractGeneratorPtr& generator) {
-	generator->paragraph(m_alignment);
+	generator->paragraph(alignment);
 }
 
 void TagParserState::LinkTag::set_defaults() {
-	m_link_name.clear();
+	link_name.clear();
 }
 
 void TagParserState::LinkTag::set_arg(const wstring& arg) {
-	m_link_name = arg;
+	link_name = arg;
 }
 
 void TagParserState::LinkTag::commit(AbstractGeneratorPtr& generator) {
-	generator->link(m_link_name);
+	generator->link(link_name);
 }
 
 void TagParserState::ParameterTag::set_defaults() {
-	m_parameter_name.clear();
+	parameter_name.clear();
 }
 
 void TagParserState::ParameterTag::set_arg(const wstring& arg) {
-	m_parameter_name = arg;
+	parameter_name = arg;
 }
 
 void TagParserState::ParameterTag::commit(AbstractGeneratorPtr& generator) {
-	generator->parameter(m_parameter_name);
+	generator->variable(parameter_name);
 }
 
 void TagParserState::CiteTag::commit(AbstractGeneratorPtr& generator) {
-	generator->cite(m_alignment);
+	generator->cite(alignment);
 }
 
 void TagParserState::VerseTag::commit(AbstractGeneratorPtr& generator) {
@@ -294,8 +316,7 @@ void TagParserState::ImageTag::parse_size(const wstring& arg) {
 			wprc = true;
 			++i;
 		}
-	}
-	else {
+	} else {
 		++i;
 	}
 
@@ -336,29 +357,47 @@ void TagParserState::ImageTag::commit(AbstractGeneratorPtr& generator) {
 	generator->image(width, height, width_percent, height_percent, alignment);
 }
 
+void TagParserState::OrderedListItemTag::commit(AbstractGeneratorPtr& generator) {
+	generator->ordered_list_item(level);
+}
+
+void TagParserState::OrderedListItemTag::set_level(int level) {
+	this->level = level;
+}
+
+void TagParserState::UnorderedListItemTag::commit(AbstractGeneratorPtr& generator) {
+	generator->unordered_list_item(level);
+}
+
+void TagParserState::UnorderedListItemTag::set_level(int level) {
+	this->level = level;
+}
+
+void TagParserState::TerminatorTag::commit(AbstractGeneratorPtr& generator) {
+	generator->terminator();
+}
+
 InlineTagParserState::InlineTagParserState() {
-	m_tag_name.reserve(DEFAULT_TAG_NAME_CAPACITY);
+	tag_name.reserve(DEFAULT_TAG_NAME_CAPACITY);
 }
 
 void InlineTagParserState::init(const ParserData& parser_data) {
 	AbstractParserState::init(parser_data);
 
-	m_tag_name.clear();
-	m_name_parsed = false;
-	m_closed = false;
-	m_opened = false;
-	m_escape = false;
+	tag_name.clear();
+	name_parsed = false;
+	closed = false;
+	opened = false;
+	escape = false;
 }
 
-ParserStates InlineTagParserState::process_char(wchar_t c,
-		AbstractGeneratorPtr& generator, ParserData& parser_data) {
-
-	if (m_closed) {
+ParserStates InlineTagParserState::process_char(wchar_t c, AbstractGeneratorPtr& generator, ParserData& parser_data) {
+	if (closed) {
 		return PARSER_STATE_TEXT;
 	}
 
-	if (!m_escape && m_opened && m_name_parsed && is_tag_close(c)) {
-		if (m_tag_name.empty()) {
+	if (!escape && opened && name_parsed && is_tag_close(c)) {
+		if (tag_name.empty()) {
 			throw StmlException(StmlException::NAMELESS_INLINE_TAG);
 		}
 
@@ -366,44 +405,44 @@ ParserStates InlineTagParserState::process_char(wchar_t c,
 			generator->close_inline_tag();
 		}
 
-		m_closed = true;
+		closed = true;
 		return PARSER_STATE_INLINE_TAG;
 	}
 
-	if (!m_name_parsed) {
+	if (!name_parsed) {
 		bool is_tag_c;
 		if (is_space(c) || (is_tag_c = is_tag_close(c))) {
-			if (m_tag_name.empty()) {
+			if (tag_name.empty()) {
 				throw StmlException(StmlException::NAMELESS_INLINE_TAG);
 			}
 
 			bool is_var = is_variable();
 			if (is_var) {
-				generator->inject_variable(m_tag_name.substr(1, m_tag_name.length() - 1));
+				generator->inject_variable(tag_name.substr(1, tag_name.length() - 1));
 			} else {
-				generator->open_inline_tag(m_tag_name);
+				generator->open_inline_tag(tag_name);
 			}
-			m_name_parsed = true;
+			name_parsed = true;
 
 			if (is_tag_c) {
 				if (!is_var) {
 					generator->close_inline_tag();
 				}
 
-				m_closed = true;
+				closed = true;
 				return PARSER_STATE_INLINE_TAG;
 			}
 		} else if (is_tag_open(c)) {
-			m_opened = true;
+			opened = true;
 		} else {
-			m_tag_name += c;
+			tag_name += c;
 		}
 	} else {
-		if (!m_escape && is_escape(c)) {
-			m_escape = true;
+		if (!escape && is_escape(c)) {
+			escape = true;
 		} else if (!is_tag_close(c)) {
 			generator->text_char(c);
-			m_escape = false;
+			escape = false;
 		}
 	}
 
@@ -413,21 +452,20 @@ ParserStates InlineTagParserState::process_char(wchar_t c,
 void TextParserState::init(const ParserData& parser_data) {
 	AbstractParserState::init(parser_data);
 
-	m_escape = false;
-	m_ignore_line_continue = parser_data.is_tag_line;
+	escape = false;
+	ignore_line_continue = parser_data.is_tag_line;
 }
 
-ParserStates TextParserState::process_char(wchar_t c,
-		AbstractGeneratorPtr& generator, ParserData& parser_data) {
-	if (m_escape) {
+ParserStates TextParserState::process_char(wchar_t c, AbstractGeneratorPtr& generator, ParserData& parser_data) {
+	if (escape) {
 		generator->text_char(c);
-		m_escape = false;
+		escape = false;
 	} else if (is_escape(c)) {
-		m_escape = true;
+		escape = true;
 	} else if (is_tag_open(c)) {
 		return PARSER_STATE_INLINE_TAG;
 	} else if (is_line_continue(c)) {
-		if (!m_ignore_line_continue) {
+		if (!ignore_line_continue) {
 			generator->line_continue();
 		} else {
 			generator->text_char(c);
@@ -453,8 +491,7 @@ void AsIsTextParserState::init(const ParserData& parser_data) {
 	AbstractParserState::init(parser_data);
 }
 
-ParserStates AsIsTextParserState::process_char(wchar_t c,
-		AbstractGeneratorPtr& generator, ParserData& parser_data) {
+ParserStates AsIsTextParserState::process_char(wchar_t c, AbstractGeneratorPtr& generator, ParserData& parser_data) {
 	generator->text_char(c);
 	return PARSER_STATE_AS_IS_TEXT;
 }

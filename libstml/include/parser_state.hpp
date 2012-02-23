@@ -66,38 +66,34 @@ struct ParserData {
 };
 
 class AbstractParserState {
-	TagModes m_tag_mode;
+	TagModes tag_mode;
 
 protected:
 	inline bool is_tag_open(wchar_t c) {
-		return ((m_tag_mode == TAG_MODE_LTGT || m_tag_mode == TAG_MODE_ANY)
-				&& c == L'<') || ((m_tag_mode == TAG_MODE_SLASH || m_tag_mode
-				== TAG_MODE_ANY) && c == L'/');
+		return ((tag_mode == TAG_MODE_LTGT || tag_mode == TAG_MODE_ANY) && c == L'<')
+				 || ((tag_mode == TAG_MODE_SLASH || tag_mode == TAG_MODE_ANY) && c == L'/');
 	}
 
 	inline bool is_tag_close(wchar_t c) {
-		return ((m_tag_mode == TAG_MODE_LTGT || m_tag_mode == TAG_MODE_ANY)
-				&& c == L'>') || ((m_tag_mode == TAG_MODE_SLASH || m_tag_mode
-				== TAG_MODE_ANY) && c == L'/');
+		return ((tag_mode == TAG_MODE_LTGT || tag_mode == TAG_MODE_ANY) && c == L'>')
+				|| ((tag_mode == TAG_MODE_SLASH || tag_mode == TAG_MODE_ANY) && c == L'/');
 	}
 
 public:
-	virtual ~AbstractParserState() {
-	}
+	virtual ~AbstractParserState() { }
 
 	virtual void init(const ParserData& parser_data);
-	virtual ParserStates process_char(wchar_t c,
-			AbstractGeneratorPtr& generator, ParserData& parser_data) = 0;
+	virtual ParserStates process_char(wchar_t c, AbstractGeneratorPtr& generator, ParserData& parser_data) = 0;
 };
 
-class StartParserState: public AbstractParserState {
+class StartParserState : public AbstractParserState {
 public:
 	void init(const ParserData& parser_data);
 	ParserStates process_char(wchar_t c, AbstractGeneratorPtr& generator,
 			ParserData& parser_data);
 };
 
-class TagParserState: public AbstractParserState {
+class TagParserState : public AbstractParserState {
 	static const size_t DEFAULT_TAG_NAME_LENGTH = 10;
 	static const size_t MAX_ARGC = 10;
 
@@ -106,7 +102,7 @@ class TagParserState: public AbstractParserState {
 		TAG_HEADER,
 		TAG_PARAGRAPH,
 		TAG_LINK,
-		TAG_PARAMETER,
+		TAG_VARIABLE,
 		TAG_CITE,
 		TAG_VERSE,
 		TAG_PREFORMATED,
@@ -117,6 +113,9 @@ class TagParserState: public AbstractParserState {
 		TAG_HORIZONTAL_LINE,
 		TAG_SECTION,
 		TAG_IMAGE,
+		TAG_ORDERED_LIST_ITEM,
+		TAG_UNORDERED_LIST_ITEM,
+		TAG_TERMINATOR,
 		TAGS_COUNT,
 		TAG_UNKNOWN
 	};
@@ -125,17 +124,15 @@ class TagParserState: public AbstractParserState {
 
 	class AbstractTag {
 	public:
-		virtual void set_defaults() {
-		}
-		virtual void set_arg(const std::wstring& arg) {
-		}
+		virtual void set_defaults() { }
+		virtual void set_arg(const std::wstring& arg) { }
 		virtual void commit(AbstractGeneratorPtr& generator) = 0;
 	};
 
 	typedef std::auto_ptr<AbstractTag> AbstractTagPtr;
 
-	class HeaderTag: public AbstractTag {
-		int m_level;
+	class HeaderTag : public AbstractTag {
+		int level;
 
 	public:
 		void set_defaults();
@@ -143,9 +140,9 @@ class TagParserState: public AbstractParserState {
 		void commit(AbstractGeneratorPtr& generator);
 	};
 
-	class ParagraphTag: public AbstractTag {
+	class ParagraphTag : public AbstractTag {
 	protected:
-		Alignment m_alignment;
+		Alignment alignment;
 
 	public:
 		void set_defaults();
@@ -153,8 +150,8 @@ class TagParserState: public AbstractParserState {
 		void commit(AbstractGeneratorPtr& generator);
 	};
 
-	class LinkTag: public AbstractTag {
-		std::wstring m_link_name;
+	class LinkTag : public AbstractTag {
+		std::wstring link_name;
 
 	public:
 		void set_defaults();
@@ -162,8 +159,8 @@ class TagParserState: public AbstractParserState {
 		void commit(AbstractGeneratorPtr& generator);
 	};
 
-	class ParameterTag: public AbstractTag {
-		std::wstring m_parameter_name;
+	class ParameterTag : public AbstractTag {
+		std::wstring parameter_name;
 
 	public:
 		void set_defaults();
@@ -171,57 +168,57 @@ class TagParserState: public AbstractParserState {
 		void commit(AbstractGeneratorPtr& generator);
 	};
 
-	class CiteTag: public ParagraphTag {
+	class CiteTag : public ParagraphTag {
 	public:
 		void commit(AbstractGeneratorPtr& generator);
 	};
 
-	class VerseTag: public AbstractTag {
+	class VerseTag : public AbstractTag {
 	public:
 		void commit(AbstractGeneratorPtr& generator);
 	};
 
-	class PreformatedTag: public AbstractTag {
+	class PreformatedTag : public AbstractTag {
 	public:
 		void commit(AbstractGeneratorPtr& generator);
 	};
 
-	class LineBreakTag: public AbstractTag {
+	class LineBreakTag : public AbstractTag {
 	public:
 		void commit(AbstractGeneratorPtr& generator);
 	};
 
-	class OrderedListTag: public AbstractTag {
+	class OrderedListTag : public AbstractTag {
 	public:
 		void commit(AbstractGeneratorPtr& generator);
 	};
 
-	class UnorderedListTag: public AbstractTag {
+	class UnorderedListTag : public AbstractTag {
 	public:
 		void commit(AbstractGeneratorPtr& generator);
 	};
 
-	class CommentTag: public AbstractTag {
+	class CommentTag : public AbstractTag {
 	public:
 		void commit(AbstractGeneratorPtr& generator);
 	};
 
-	class SectionTag: public AbstractTag {
+	class SectionTag : public AbstractTag {
 	public:
 		void commit(AbstractGeneratorPtr& generator);
 	};
 
-	class HorizontalLineTag: public AbstractTag {
+	class HorizontalLineTag : public AbstractTag {
 	public:
 		void commit(AbstractGeneratorPtr& generator);
 	};
 
-	class DocumentTag: public AbstractTag {
+	class DocumentTag : public AbstractTag {
 	public:
 		void commit(AbstractGeneratorPtr& generator);
 	};
 
-	class ImageTag: public AbstractTag {
+	class ImageTag : public AbstractTag {
 		Alignment alignment;
 		int width;
 		int height;
@@ -243,21 +240,44 @@ class TagParserState: public AbstractParserState {
 		void commit(AbstractGeneratorPtr& generator);
 	};
 
-	AbstractTagPtr m_tags[TAGS_COUNT];
+	class OrderedListItemTag : public AbstractTag {
+		int level;
 
-	std::wstring m_current_string;
-	Tags m_current_tag;
-	bool m_closed;
-	bool m_opened;
+	public:
+		void commit(AbstractGeneratorPtr& generator);
 
+		void set_level(int level);
+	};
+
+	class UnorderedListItemTag : public AbstractTag {
+		int level;
+
+	public:
+		void commit(AbstractGeneratorPtr& generator);
+
+		void set_level(int level);
+	};
+
+	class TerminatorTag : public AbstractTag {
+	public:
+		void commit(AbstractGeneratorPtr& generator);
+	};
+
+	AbstractTagPtr tags[TAGS_COUNT];
+
+	std::wstring current_string;
+	Tags current_tag;
+	bool closed;
+	bool opened;
+
+	static bool all_chars_equal(const std::wstring& str, wchar_t c);
 	void init_current_tag(ParserData& parser_data);
 
 public:
 	TagParserState();
 
 	void init(const ParserData& parser_data);
-	ParserStates process_char(wchar_t c, AbstractGeneratorPtr& generator,
-			ParserData& parser_data);
+	ParserStates process_char(wchar_t c, AbstractGeneratorPtr& generator, ParserData& parser_data);
 };
 
 TagParserState::Tags get_tag_by_name(const std::wstring& tag_name);
@@ -265,39 +285,36 @@ TagParserState::Tags get_tag_by_name(const std::wstring& tag_name);
 class InlineTagParserState: public AbstractParserState {
 	static const size_t DEFAULT_TAG_NAME_CAPACITY = 50;
 
-	std::wstring m_tag_name;
-	bool m_name_parsed;
-	bool m_opened;
-	bool m_closed;
-	bool m_escape;
+	std::wstring tag_name;
+	bool name_parsed;
+	bool opened;
+	bool closed;
+	bool escape;
 
-	inline bool is_variable() { return m_tag_name[0] == L'$'; }
+	inline bool is_variable() { return tag_name[0] == L'$'; }
 
 public:
 	InlineTagParserState();
 
 	void init(const ParserData& parser_data);
-	ParserStates process_char(wchar_t c, AbstractGeneratorPtr& generator,
-			ParserData& parser_data);
+	ParserStates process_char(wchar_t c, AbstractGeneratorPtr& generator, ParserData& parser_data);
 };
 
 class TextParserState: public AbstractParserState {
 
-	bool m_escape;
-	bool m_ignore_line_continue;
+	bool escape;
+	bool ignore_line_continue;
 
 public:
 	void init(const ParserData& parser_data);
-	ParserStates process_char(wchar_t c, AbstractGeneratorPtr& generator,
-			ParserData& parser_data);
+	ParserStates process_char(wchar_t c, AbstractGeneratorPtr& generator, ParserData& parser_data);
 };
 
 class AsIsTextParserState: public AbstractParserState {
 
 public:
 	void init(const ParserData& parser_data);
-	ParserStates process_char(wchar_t c, AbstractGeneratorPtr& generator,
-			ParserData& parser_data);
+	ParserStates process_char(wchar_t c, AbstractGeneratorPtr& generator, ParserData& parser_data);
 };
 
 }

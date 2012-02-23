@@ -240,7 +240,7 @@ TexGenerator::Parameters TexGenerator::get_parameter_by_name(const wstring& name
     return PARAM_UNKNOWN;
 }
 
-void TexGenerator::parameter(const wstring& name) {
+void TexGenerator::variable(const wstring& name) {
     current_parameter = PARAM_UNKNOWN;
     if (!name.empty()) {
         current_parameter = get_parameter_by_name(name);
@@ -434,4 +434,16 @@ void TexGenerator::line_end() {
 
 void TexGenerator::close_document() {
 
+}
+
+void TexGenerator::ordered_list_item(int level) {
+	//TODO: Implement.
+}
+
+void TexGenerator::unordered_list_item(int level) {
+	//TODO: Implement.
+}
+
+void TexGenerator::terminator() {
+	//TODO: Implement.
 }

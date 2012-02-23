@@ -29,20 +29,104 @@ public:
 
     void set_output(std::ostream* out);
 
+    /**
+     * <doc> tag.
+     */
     virtual void document() = 0;
+
+    /**
+     * <h> tag.
+     *
+     * @param	level	Level of the header.
+     */
     virtual void header(int level) = 0;
+
+    /**
+     * <p> tag or default paragraph.
+     *
+     * @param	alignment	Alignment of the text within the paragraph.
+     *
+     */
     virtual void paragraph(Alignment alignment) = 0;
+
+    /**
+     * <link> tag.
+     *
+     * @param	name	Name of the link.
+     *
+     */
     virtual void link(const std::wstring& name) = 0;
+
+    /**
+     * <c> tag.
+     *
+     * @param	alignment	Alignment of the text within the cite.
+     *
+     */
     virtual void cite(Alignment alignment) = 0;
+
+    /**
+     * <verse> tag.
+     */
     virtual void verse() = 0;
+
+    /**
+     * <pre> tag.
+     */
     virtual void preformated() = 0;
+
+    /**
+     * <br> tag.
+     */
     virtual void line_break() = 0;
+
+    /**
+     * <ol> tag.
+     */
     virtual void ordered_list() = 0;
+
+    /**
+     * <ul> tag.
+     */
     virtual void unordered_list() = 0;
+
+    /**
+     * <!> tag.
+     */
     virtual void comment() = 0;
+
+    /**
+     * <s> tag.
+     */
     virtual void section() = 0;
+
+    /**
+     * <hr> tag.
+     */
     virtual void horizontal_line() = 0;
-    virtual void parameter(const std::wstring& name) = 0;
+
+    /**
+     * <$...> tag.
+     *
+     * @param	name	Name of the variable.
+     */
+    virtual void variable(const std::wstring& name) = 0;
+
+    /**
+     * <#> tags.
+     *
+     * @param	level	Level of the item.
+     *
+     */
+    virtual void ordered_list_item(int level) = 0;
+
+    /**
+     * <*> tags.
+     *
+     * @param	level	Level of the item.
+     *
+     */
+    virtual void unordered_list_item(int level) = 0;
 
     /**
      * <img> tag.
@@ -57,6 +141,11 @@ public:
      *
      */
     virtual void image(int width, int height, bool width_percent, bool height_percent, Alignment alignment) = 0;
+
+    /**
+     * <.> tag.
+     */
+    virtual void terminator() = 0;
 
     virtual void close_tag() = 0;
     virtual void inject_variable(const std::wstring& variable_name) = 0;

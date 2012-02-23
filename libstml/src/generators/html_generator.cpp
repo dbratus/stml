@@ -6,6 +6,7 @@
 #include "../../include/generators/html_generator.hpp"
 #include "../../include/languages/russian/russian_language.hpp"
 
+#include <cstdlib>
 #include <cstdio>
 
 using namespace std;
@@ -27,30 +28,42 @@ HtmlGenerator::HtmlGenerator() :
 	quotes[QUOTE_ENGLISH_SINGLE_OPENED] = "&lsquo;";
 	quotes[QUOTE_ENGLISH_SINGLE_CLOSED] = "&rsquo;";
 
-	renderers[TAG_RENDERER_HEADER1].reset(new HtmlGenerator::HeaderRenderer(1));
-	renderers[TAG_RENDERER_HEADER2].reset(new HtmlGenerator::HeaderRenderer(2));
-	renderers[TAG_RENDERER_HEADER3].reset(new HtmlGenerator::HeaderRenderer(3));
-	renderers[TAG_RENDERER_HEADER4].reset(new HtmlGenerator::HeaderRenderer(4));
-	renderers[TAG_RENDERER_HEADER5].reset(new HtmlGenerator::HeaderRenderer(5));
-	renderers[TAG_RENDERER_HEADER6].reset(new HtmlGenerator::HeaderRenderer(6));
-	renderers[TAG_RENDERER_PARAGRAPH].reset(
-			new HtmlGenerator::ParagraphRenderer());
-	renderers[TAG_RENDERER_CITE_PARAGRAPH].reset(
-			new HtmlGenerator::CiteParagraphRenderer());
-	renderers[TAG_RENDERER_CITE].reset(new HtmlGenerator::CiteRenderer());
-	renderers[TAG_RENDERER_VERSE].reset(new HtmlGenerator::VerseRenderer());
-	renderers[TAG_RENDERER_PREFORMATED].reset(
-			new HtmlGenerator::PreformatedRenderer());
-	renderers[TAG_RENDERER_LINE_BREAK].reset(
-			new HtmlGenerator::LineBreakRenderer());
-	renderers[TAG_RENDERER_ORDERED_LIST].reset(
-			new HtmlGenerator::OrderedListRenderer());
-	renderers[TAG_RENDERER_UNORDERED_LIST].reset(
-			new HtmlGenerator::UnorderedListRenderer());
-	renderers[TAG_RENDERER_SECTION].reset(new HtmlGenerator::SectionRenderer());
-	renderers[TAG_RENDERER_HORIZONTAL_LINE].reset(
-			new HtmlGenerator::HorizontalLineRenderer());
-	renderers[TAG_RENDERER_IMAGE].reset(new HtmlGenerator::ImageRenderer());
+	renderers[TAG_RENDERER_HEADER1].reset(new HeaderRenderer(1));
+	renderers[TAG_RENDERER_HEADER2].reset(new HeaderRenderer(2));
+	renderers[TAG_RENDERER_HEADER3].reset(new HeaderRenderer(3));
+	renderers[TAG_RENDERER_HEADER4].reset(new HeaderRenderer(4));
+	renderers[TAG_RENDERER_HEADER5].reset(new HeaderRenderer(5));
+	renderers[TAG_RENDERER_HEADER6].reset(new HeaderRenderer(6));
+	renderers[TAG_RENDERER_PARAGRAPH].reset(new ParagraphRenderer());
+	renderers[TAG_RENDERER_CITE_PARAGRAPH].reset(new CiteParagraphRenderer());
+	renderers[TAG_RENDERER_CITE].reset(new CiteRenderer());
+	renderers[TAG_RENDERER_VERSE].reset(new VerseRenderer());
+	renderers[TAG_RENDERER_PREFORMATED].reset(new PreformatedRenderer());
+	renderers[TAG_RENDERER_LINE_BREAK].reset(new LineBreakRenderer());
+	renderers[TAG_RENDERER_ORDERED_LIST].reset(new OrderedListRenderer());
+	renderers[TAG_RENDERER_UNORDERED_LIST].reset(new UnorderedListRenderer());
+	renderers[TAG_RENDERER_SECTION].reset(new SectionRenderer());
+	renderers[TAG_RENDERER_HORIZONTAL_LINE].reset(new HorizontalLineRenderer());
+	renderers[TAG_RENDERER_IMAGE].reset(new ImageRenderer());
+	renderers[TAG_RENDERER_ORDERED_ML_LIST].reset(new OrderedMultilevelListRenderer());
+	renderers[TAG_RENDERER_UNORDERED_ML_LIST_L1].reset(new UnorderedMultilevelListRenderer(1));
+	renderers[TAG_RENDERER_UNORDERED_ML_LIST_L2].reset(new UnorderedMultilevelListRenderer(2));
+	renderers[TAG_RENDERER_UNORDERED_ML_LIST_L3].reset(new UnorderedMultilevelListRenderer(3));
+	renderers[TAG_RENDERER_UNORDERED_ML_LIST_L4].reset(new UnorderedMultilevelListRenderer(4));
+	renderers[TAG_RENDERER_UNORDERED_ML_LIST_L5].reset(new UnorderedMultilevelListRenderer(5));
+	renderers[TAG_RENDERER_UNORDERED_ML_LIST_L6].reset(new UnorderedMultilevelListRenderer(6));
+	renderers[TAG_RENDERER_ORDERED_LIST_ITEM_L1].reset(new OrderedListItemRenderer(1));
+	renderers[TAG_RENDERER_ORDERED_LIST_ITEM_L2].reset(new OrderedListItemRenderer(2));
+	renderers[TAG_RENDERER_ORDERED_LIST_ITEM_L3].reset(new OrderedListItemRenderer(3));
+	renderers[TAG_RENDERER_ORDERED_LIST_ITEM_L4].reset(new OrderedListItemRenderer(4));
+	renderers[TAG_RENDERER_ORDERED_LIST_ITEM_L5].reset(new OrderedListItemRenderer(5));
+	renderers[TAG_RENDERER_ORDERED_LIST_ITEM_L6].reset(new OrderedListItemRenderer(6));
+	renderers[TAG_RENDERER_UNORDERED_LIST_ITEM_L1].reset(new UnorderedListItemRenderer(1));
+	renderers[TAG_RENDERER_UNORDERED_LIST_ITEM_L2].reset(new UnorderedListItemRenderer(2));
+	renderers[TAG_RENDERER_UNORDERED_LIST_ITEM_L3].reset(new UnorderedListItemRenderer(3));
+	renderers[TAG_RENDERER_UNORDERED_LIST_ITEM_L4].reset(new UnorderedListItemRenderer(4));
+	renderers[TAG_RENDERER_UNORDERED_LIST_ITEM_L5].reset(new UnorderedListItemRenderer(5));
+	renderers[TAG_RENDERER_UNORDERED_LIST_ITEM_L6].reset(new UnorderedListItemRenderer(6));
 
 	html_no_line_breaks = var.reset(L"html_no_line_breaks", VAR_FALSE);
 	html_no_default_paragraphs = var.reset(L"html_no_default_paragraphs", VAR_FALSE);
@@ -94,12 +107,54 @@ HtmlGenerator::HtmlGenerator() :
 	html_hr_style = var.reset(L"html_hr_style", L"");
 	html_img_class = var.reset(L"html_img_class", L"");
 	html_img_style = var.reset(L"html_img_style", L"");
+	html_ol_ml_class = var.reset(L"html_ol_ml_class", L"");
+	html_ol_ml_style = var.reset(L"html_ol_ml_style", L"");
+	html_ul_ml_l1_class = var.reset(L"html_ul_ml_l1_class", L"");
+	html_ul_ml_l2_class = var.reset(L"html_ul_ml_l2_class", L"");
+	html_ul_ml_l3_class = var.reset(L"html_ul_ml_l3_class", L"");
+	html_ul_ml_l4_class = var.reset(L"html_ul_ml_l4_class", L"");
+	html_ul_ml_l5_class = var.reset(L"html_ul_ml_l5_class", L"");
+	html_ul_ml_l6_class = var.reset(L"html_ul_ml_l6_class", L"");
+	html_ul_ml_l1_style = var.reset(L"html_ul_ml_l1_style", L"");
+	html_ul_ml_l2_style = var.reset(L"html_ul_ml_l2_style", L"");
+	html_ul_ml_l3_style = var.reset(L"html_ul_ml_l3_style", L"");
+	html_ul_ml_l4_style = var.reset(L"html_ul_ml_l4_style", L"");
+	html_ul_ml_l5_style = var.reset(L"html_ul_ml_l5_style", L"");
+	html_ul_ml_l6_style = var.reset(L"html_ul_ml_l6_style", L"");
+	html_ul_li_l1_class = var.reset(L"html_ul_li_l1_class", L"");
+	html_ol_li_l1_class = var.reset(L"html_ol_li_l1_class", L"");
+	html_ul_li_l2_class = var.reset(L"html_ul_li_l2_class", L"");
+	html_ol_li_l2_class = var.reset(L"html_ol_li_l2_class", L"");
+	html_ul_li_l3_class = var.reset(L"html_ul_li_l3_class", L"");
+	html_ol_li_l3_class = var.reset(L"html_ol_li_l3_class", L"");
+	html_ul_li_l4_class = var.reset(L"html_ul_li_l4_class", L"");
+	html_ol_li_l4_class = var.reset(L"html_ol_li_l4_class", L"");
+	html_ul_li_l5_class = var.reset(L"html_ul_li_l5_class", L"");
+	html_ol_li_l5_class = var.reset(L"html_ol_li_l5_class", L"");
+	html_ul_li_l6_class = var.reset(L"html_ul_li_l6_class", L"");
+	html_ol_li_l6_class = var.reset(L"html_ol_li_l6_class", L"");
+	html_ul_li_l1_style = var.reset(L"html_ul_li_l1_style", L"");
+	html_ol_li_l1_style = var.reset(L"html_ol_li_l1_style", L"");
+	html_ul_li_l2_style = var.reset(L"html_ul_li_l2_style", L"");
+	html_ol_li_l2_style = var.reset(L"html_ol_li_l2_style", L"");
+	html_ul_li_l3_style = var.reset(L"html_ul_li_l3_style", L"");
+	html_ol_li_l3_style = var.reset(L"html_ol_li_l3_style", L"");
+	html_ul_li_l4_style = var.reset(L"html_ul_li_l4_style", L"");
+	html_ol_li_l4_style = var.reset(L"html_ol_li_l4_style", L"");
+	html_ul_li_l5_style = var.reset(L"html_ul_li_l5_style", L"");
+	html_ol_li_l5_style = var.reset(L"html_ol_li_l5_style", L"");
+	html_ul_li_l6_style = var.reset(L"html_ul_li_l6_style", L"");
+	html_ol_li_l6_style = var.reset(L"html_ol_li_l6_style", L"");
+	html_li_index_class = var.reset(L"html_li_index_class", L"");
+	html_li_index_style = var.reset(L"html_li_index_style", L"");
+	list_format = var.reset(L"list_format", DEFAULT_LIST_FORMAT);
 
 	continue_line = false;
 	current_inline_tag = NULL;
 	inline_tag_being_rednered = NULL;
 	document_opened = false;
 	current_var = UNKNOWN_VAR;
+	list_format_changed = false;
 }
 
 HtmlGenerator::~HtmlGenerator() {
@@ -109,28 +164,36 @@ HtmlGenerator::~HtmlGenerator() {
 	}
 }
 
-void HtmlGenerator::TagRenderer::write_attributes(ostream& out,
-		const char* attr_names[], const char* attr_values[], size_t attr_count,
-		bool exclude_class, bool exclude_style) {
-
+void HtmlGenerator::TagRenderer::write_attributes(
+		ostream& out,
+		const char* attr_names[],
+		const char* attr_values[],
+		size_t attr_count,
+		bool exclude_class,
+		bool exclude_style
+	) {
 	if (attr_count > 0) {
 		out << " ";
 	}
 
 	for (size_t i = 0; i < attr_count; ++i) {
-		if ((!exclude_class || char_traits<char>::compare(attr_names[i],
-				"class", CLASS_STRLEN) != 0) && (!exclude_style || char_traits<
-				char>::compare(attr_names[i], "style", STYLE_STRLEN) != 0)) {
+		if ((!exclude_class || char_traits<char>::compare(attr_names[i], "class", CLASS_STRLEN) != 0) &&
+			(!exclude_style || char_traits<char>::compare(attr_names[i], "style", STYLE_STRLEN) != 0)) {
 
 			out << attr_names[i] << "='" << attr_values[i] << "' ";
 		}
 	}
 }
 
-void HtmlGenerator::TagRenderer::write_open(HtmlGenerator* generator,
-		const char* tag_name, const char* attr_names[],
-		const char* attr_values[], size_t attr_count, bool end, bool close) {
-
+void HtmlGenerator::TagRenderer::write_open(
+		HtmlGenerator* generator,
+		const char* tag_name,
+		const char* attr_names[],
+		const char* attr_values[],
+		size_t attr_count,
+		bool end,
+		bool close
+	) {
 	*(generator->out) << "<" << tag_name << " ";
 
 	bool exclude_class = false;
@@ -142,8 +205,7 @@ void HtmlGenerator::TagRenderer::write_open(HtmlGenerator* generator,
 		*(generator->out) << "class='";
 		generator->var[v].markup.write(*(generator->out));
 		for (size_t i = 0; i < attr_count; ++i) {
-			if (char_traits<char>::compare(attr_names[i], "class", CLASS_STRLEN)
-					== 0) {
+			if (char_traits<char>::compare(attr_names[i], "class", CLASS_STRLEN) == 0) {
 				*(generator->out) << attr_values[i];
 				exclude_class = true;
 				break;
@@ -156,10 +218,12 @@ void HtmlGenerator::TagRenderer::write_open(HtmlGenerator* generator,
 	if (v != UNKNOWN_VAR && !generator->var[v].as_string().empty()) {
 
 		*(generator->out) << "style='";
+
+		*(generator->out) << static_style();
 		generator->var[v].markup.write(*(generator->out));
+
 		for (size_t i = 0; i < attr_count; ++i) {
-			if (char_traits<char>::compare(attr_names[i], "style", STYLE_STRLEN)
-					== 0) {
+			if (char_traits<char>::compare(attr_names[i], "style", STYLE_STRLEN) == 0) {
 				*(generator->out) << attr_values[i];
 				exclude_style = true;
 				break;
@@ -168,8 +232,7 @@ void HtmlGenerator::TagRenderer::write_open(HtmlGenerator* generator,
 		*(generator->out) << "' ";
 	}
 
-	write_attributes(*(generator->out), attr_names, attr_values, attr_count,
-			exclude_class, exclude_style);
+	write_attributes(*(generator->out), attr_names, attr_values, attr_count, exclude_class, exclude_style);
 
 	if (end) {
 		if (close) {
@@ -183,12 +246,14 @@ void HtmlGenerator::TagRenderer::write_close(ostream& out, const char* tag_name)
 	out << "</" << tag_name << ">";
 }
 
-void HtmlGenerator::TagRenderer::open(HtmlGenerator* generator,
-		const char* attr_names[], const char* attr_values[], size_t attr_count,
-		bool end, bool close) {
-
-	write_open(generator, tag_name(), attr_names, attr_values, attr_count, end,
-			close);
+void HtmlGenerator::TagRenderer::open(
+	HtmlGenerator* generator,
+	const char* attr_names[],
+	const char* attr_values[],
+	size_t attr_count,
+	bool end,
+	bool close) {
+	write_open(generator, tag_name(), attr_names, attr_values, attr_count, end, close);
 }
 
 void HtmlGenerator::TagRenderer::line(HtmlGenerator* generator) {
@@ -203,20 +268,32 @@ void HtmlGenerator::TagRenderer::close(HtmlGenerator* generator) {
 	write_close(*(generator->out), tag_name());
 }
 
+const char* HtmlGenerator::TagRenderer::static_style() {
+	return "";
+}
+
 const char* HtmlGenerator::HeaderRenderer::tag_name() {
 	static const char* names[] = { "h1", "h2", "h3", "h4", "h5", "h6" };
 	return names[level - 1];
 }
 
 var_id_t HtmlGenerator::HeaderRenderer::class_parameter(HtmlGenerator* generator) {
-	var_id_t vars[] = { generator->html_h1_class, generator->html_h2_class,
-			generator->html_h3_class, generator->html_h4_class, generator->html_h5_class, generator->html_h6_class };
+	var_id_t vars[] = {
+		generator->html_h1_class, generator->html_h2_class,
+		generator->html_h3_class, generator->html_h4_class,
+		generator->html_h5_class, generator->html_h6_class
+	};
+
 	return vars[level - 1];
 }
 
 var_id_t HtmlGenerator::HeaderRenderer::style_parameter(HtmlGenerator* generator) {
-	var_id_t vars[] = { generator->html_h1_style, generator->html_h2_style,
-			generator->html_h3_style, generator->html_h4_style, generator->html_h5_style, generator->html_h6_style };
+	var_id_t vars[] = {
+		generator->html_h1_style, generator->html_h2_style,
+		generator->html_h3_style, generator->html_h4_style,
+		generator->html_h5_style, generator->html_h6_style
+	};
+
 	return vars[level - 1];
 }
 
@@ -228,6 +305,7 @@ void HtmlGenerator::PreformatedRenderer::line(HtmlGenerator* generator) {
 	if (generator->place_line_break) {
 		*(generator->out) << endl;
 	}
+
 	generator->markup.write(*(generator->out));
 }
 
@@ -275,8 +353,7 @@ void HtmlGenerator::ImageRenderer::close(HtmlGenerator* generator) {
 	*(generator->out) << "/>";
 }
 
-void HtmlGenerator::AbstractInlineTag::append_markup_to_value(
-		const MarkupBuilder& markup) {
+void HtmlGenerator::AbstractInlineTag::append_markup_to_value(const MarkupBuilder& markup) {
 	markup.append(value);
 }
 
@@ -308,6 +385,78 @@ void HtmlGenerator::LinkInlineTag::close(HtmlGenerator* generator) {
 	generator->markup.last_char().append("</a>");
 }
 
+void HtmlGenerator::OrderedMultilevelListRenderer::line(HtmlGenerator* generator) {
+	//Do nothing.
+}
+
+void HtmlGenerator::UnorderedMultilevelListRenderer::line(HtmlGenerator* generator) {
+	//Do nothing.
+}
+
+var_id_t HtmlGenerator::UnorderedMultilevelListRenderer::class_parameter(HtmlGenerator* generator) {
+	var_id_t vars[] = {
+		generator->html_ul_ml_l1_class, generator->html_ul_ml_l2_class,
+		generator->html_ul_ml_l3_class, generator->html_ul_ml_l4_class,
+		generator->html_ul_ml_l5_class, generator->html_ul_ml_l6_class
+	};
+
+	return vars[level - 1];
+}
+
+var_id_t HtmlGenerator::UnorderedMultilevelListRenderer::style_parameter(HtmlGenerator* generator) {
+	var_id_t vars[] = {
+		generator->html_ul_ml_l1_style, generator->html_ul_ml_l2_style,
+		generator->html_ul_ml_l3_style, generator->html_ul_ml_l4_style,
+		generator->html_ul_ml_l5_style, generator->html_ul_ml_l6_style
+	};
+
+	return vars[level - 1];
+}
+
+var_id_t HtmlGenerator::OrderedListItemRenderer::class_parameter(HtmlGenerator* generator) {
+	var_id_t vars[] = {
+		generator->html_ol_li_l1_class, generator->html_ol_li_l2_class,
+		generator->html_ol_li_l3_class, generator->html_ol_li_l4_class,
+		generator->html_ol_li_l5_class, generator->html_ol_li_l6_class
+	};
+
+	return vars[level - 1];
+}
+
+var_id_t HtmlGenerator::OrderedListItemRenderer::style_parameter(HtmlGenerator* generator) {
+	var_id_t vars[] = {
+		generator->html_ol_li_l1_style, generator->html_ol_li_l2_style,
+		generator->html_ol_li_l3_style, generator->html_ol_li_l4_style,
+		generator->html_ol_li_l5_style, generator->html_ol_li_l6_style
+	};
+
+	return vars[level - 1];
+}
+
+const char* HtmlGenerator::OrderedListItemRenderer::static_style() {
+	return "list-style-type: none;list-style-image: none;";
+}
+
+var_id_t HtmlGenerator::UnorderedListItemRenderer::class_parameter(HtmlGenerator* generator) {
+	var_id_t vars[] = {
+		generator->html_ul_li_l1_class, generator->html_ul_li_l2_class,
+		generator->html_ul_li_l3_class, generator->html_ul_li_l4_class,
+		generator->html_ul_li_l5_class, generator->html_ul_li_l6_class
+	};
+
+	return vars[level - 1];
+}
+
+var_id_t HtmlGenerator::UnorderedListItemRenderer::style_parameter(HtmlGenerator* generator) {
+	var_id_t vars[] = {
+		generator->html_ul_li_l1_style, generator->html_ul_li_l2_style,
+		generator->html_ul_li_l3_style, generator->html_ul_li_l4_style,
+		generator->html_ul_li_l5_style, generator->html_ul_li_l6_style
+	};
+
+	return vars[level - 1];
+}
+
 void HtmlGenerator::document() {
 	document_opened = true;
 	tag_stack.push(TAG_RENDERER_DOCUMENT);
@@ -315,8 +464,11 @@ void HtmlGenerator::document() {
 }
 
 void HtmlGenerator::header(int level) {
-	TagRenderers renderer = (TagRenderers) ((int) TAG_RENDERER_HEADER1
-			+ ((level < 0) ? 0 : level - 1));
+	if (level > MAX_HEADER_DEPTH) {
+		throw new StmlException(StmlException::MAX_HEADER_DEPTH_EXCEEDED);
+	}
+
+	TagRenderers renderer = (TagRenderers) ((int) TAG_RENDERER_HEADER1 + ((level < 0) ? 0 : level - 1));
 	renderers[renderer]->open(this, NULL, NULL, 0, true, false);
 	tag_stack.push(renderer);
 	place_line_break = false;
@@ -362,8 +514,7 @@ void HtmlGenerator::paragraph(Alignment alignment) {
 }
 
 void HtmlGenerator::link(const wstring& name) {
-	map<wstring, HtmlGenerator::AbstractInlineTag*>::iterator tag =
-			inline_tags.find(name);
+	map<wstring, HtmlGenerator::AbstractInlineTag*>::iterator tag = inline_tags.find(name);
 	if (tag != inline_tags.end()) {
 		throw StmlException(StmlException::INLINE_TAG_ALREADY_EXISTS);
 	}
@@ -405,8 +556,7 @@ void HtmlGenerator::ordered_list() {
 }
 
 void HtmlGenerator::unordered_list() {
-	renderers[TAG_RENDERER_UNORDERED_LIST]->open(this, NULL, NULL, 0, true,
-			false);
+	renderers[TAG_RENDERER_UNORDERED_LIST]->open(this, NULL, NULL, 0, true, false);
 	tag_stack.push(TAG_RENDERER_UNORDERED_LIST);
 	place_line_break = false;
 }
@@ -423,15 +573,18 @@ void HtmlGenerator::section() {
 }
 
 void HtmlGenerator::horizontal_line() {
-	renderers[TAG_RENDERER_HORIZONTAL_LINE]->open(this, NULL, NULL, 0, true,
-			true);
+	renderers[TAG_RENDERER_HORIZONTAL_LINE]->open(this, NULL, NULL, 0, true, true);
 	place_line_break = false;
 }
 
-void HtmlGenerator::parameter(const wstring& name) {
+void HtmlGenerator::variable(const wstring& name) {
 	current_var = UNKNOWN_VAR;
 	if (!name.empty()) {
 		current_var = var.reset(name.c_str(), L"");
+
+		if (name == L"list_format") {
+			list_format_changed = true;
+		}
 	}
 	tag_stack.push(TAG_RENDERER_PARAMETER);
 	place_line_break = false;
@@ -481,8 +634,7 @@ void HtmlGenerator::image(int width, int height, bool width_percent,
 
 void HtmlGenerator::generate_doc_header() {
 	*out << "<html><head>";
-	*out
-			<< "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">";
+	*out << "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">";
 	if (!var[html_doc_title].as_string().empty()) {
 		*out << "<title>";
 		var[html_doc_title].markup.write(*out);
@@ -524,20 +676,23 @@ void HtmlGenerator::close_tag() {
 		generate_doc_header();
 	}
 
-	//If there is a renderer for the tag currently on top,
-	//render closing tag.
-	if (renderers[top].get()) {
-		renderers[top]->close(this);
+	if (top < TAG_RENDERER_ORDERED_LIST_ITEM_L1 || top > TAG_RENDERER_UNORDERED_LIST_ITEM_L6) {
+		//If there is a renderer for the tag currently on top,
+		//render closing tag.
+		if (renderers[top].get()) {
+			renderers[top]->close(this);
 
-		if (!var[html_no_line_breaks].as_boolean()) {
-			*out << endl;
+			if (!var[html_no_line_breaks].as_boolean()) {
+				*out << endl;
+			}
 		}
+
+		tag_stack.pop();
+
+		current_var = UNKNOWN_VAR;
 	}
 
-	tag_stack.pop();
-
 	current_inline_tag = NULL;
-	current_var = UNKNOWN_VAR;
 }
 
 void HtmlGenerator::inject_variable(const wstring& variable_name) {
@@ -568,8 +723,7 @@ void HtmlGenerator::close_inline_tag() {
 }
 
 void HtmlGenerator::text_char(wchar_t c) {
-	if (!tag_stack.empty() && (tag_stack.top() == TAG_RENDERER_COMMENT
-			|| tag_stack.top() == TAG_RENDERER_DOCUMENT)) {
+	if (!tag_stack.empty() && (tag_stack.top() == TAG_RENDERER_COMMENT || tag_stack.top() == TAG_RENDERER_DOCUMENT)) {
 		return;
 	}
 
@@ -633,9 +787,7 @@ void HtmlGenerator::decorate_text() {
 }
 
 void HtmlGenerator::line_end() {
-
-	if (tag_stack.empty() || tag_stack.top() == TAG_RENDERER_SECTION
-			|| tag_stack.top() == TAG_RENDERER_CITE) {
+	if (tag_stack.empty() || tag_stack.top() == TAG_RENDERER_SECTION || tag_stack.top() == TAG_RENDERER_CITE) {
 
 		//If we are in root, section or cite,
 		//render default paragraph or, if $no_default_paragraphs specified, plain text.
@@ -656,18 +808,14 @@ void HtmlGenerator::line_end() {
 		} else {
 			TagRenderers top = tag_stack.top();
 			//If there is a renderer for the tag currently on top,
-			//render the line within tag.
+			//render the line within the tag.
 			if (renderers[top].get()) {
 				renderers[top]->line(this);
 			}
 
 			//If it is not specified explicitly that the line must be continued,
 			//the next not empty line will start with line break.
-			if (!continue_line && !markup.empty()) {
-				place_line_break = true;
-			} else {
-				place_line_break = false;
-			}
+			place_line_break = !continue_line && !markup.empty();
 			continue_line = false;
 		}
 
@@ -678,5 +826,81 @@ void HtmlGenerator::line_end() {
 void HtmlGenerator::close_document() {
 	if (document_opened) {
 		*out << "</body></html>";
+	}
+}
+
+void HtmlGenerator::refresh_list_format() {
+
+}
+
+void HtmlGenerator::ordered_list_item(int level) {
+	if (level > MAX_ML_LIST_DEPTH) {
+		throw StmlException(StmlException::MAX_LIST_DEPTH_EXCEEDED);
+	}
+
+	int current_level = list_items_counter.current_item_path().size();
+
+	if (level - current_level > 1) {
+		throw StmlException(StmlException::LIST_LEVEL_HOP);
+	}
+
+	list_items_counter.increment(level);
+
+	if (level < current_level) {
+		int pops_count = (current_level - level) * 2;
+
+		for (int i = 0; i < pops_count; ++i) {
+			renderers[tag_stack.top()]->close(this);
+			tag_stack.pop();
+		}
+	} else if (level > current_level) {
+		renderers[TAG_RENDERER_ORDERED_ML_LIST]->open(this, NULL, NULL, 0, true, false);
+		tag_stack.push(TAG_RENDERER_ORDERED_ML_LIST);
+
+		TagRenderers item_renderer = (TagRenderers)(TAG_RENDERER_ORDERED_LIST_ITEM_L1 + level - 1);
+
+		renderers[item_renderer]->open(this, NULL, NULL, 0, true, false);
+		tag_stack.push(item_renderer);
+
+		refresh_list_format();
+
+		markup << L"<span ";
+
+		if (!var[html_li_index_class].markup.empty()) {
+			markup << L"class='" << var[html_li_index_class].markup << L"' ";
+		}
+
+		if (!var[html_li_index_style].markup.empty()) {
+			markup << L"style='" << var[html_li_index_style].markup << L"' ";
+		}
+
+		markup
+			<< L">"
+			<< current_list_format.generator(level)->generate_index(list_items_counter.current_item_path())
+			<< L"</span>";
+	} else {
+		TagRenderers item_renderer = tag_stack.top();
+
+		renderers[item_renderer]->close(this);
+		renderers[item_renderer]->open(this, NULL, NULL, 0, true, false);
+	}
+}
+
+void HtmlGenerator::unordered_list_item(int level) {
+	//TODO: Implement.
+}
+
+void HtmlGenerator::terminator() {
+	//If the current item path is not empty,
+	//than this is the end of a multilevel list.
+	if (!list_items_counter.current_item_path().empty()) {
+		int pops_count = list_items_counter.current_item_path().size() * 2;
+
+		for (int i = 0; i < pops_count; ++i) {
+			renderers[tag_stack.top()]->close(this);
+			tag_stack.pop();
+		}
+
+		list_items_counter.clear();
 	}
 }

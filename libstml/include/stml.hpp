@@ -25,6 +25,8 @@ class MultiLevelNumericListIndexGenerator;
 class SingleLevelListIndexGenerator;
 class CharRangeIndexGenerator;
 class RomanNumbersIndexGenerator;
+class ListItemsCounter;
+class ListFormat;
 
 typedef std::auto_ptr<AbstractGenerator> AbstractGeneratorPtr;
 typedef std::auto_ptr<AbstractParserState> AbstractParserStatePtr;
