@@ -17,9 +17,9 @@ protected:
 
 	inline void init_buffer() { memset(buffer, 0, BUFFER_SIZE * sizeof(wchar_t)); }
 
-	virtual ~AbstractListIndexGenerator() { }
-
 public:
+
+	virtual ~AbstractListIndexGenerator() { }
 
 	/**
 	 * Generates an index for the item with the specified path.

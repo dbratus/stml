@@ -155,6 +155,7 @@ HtmlGenerator::HtmlGenerator() :
 	document_opened = false;
 	current_var = UNKNOWN_VAR;
 	list_format_changed = false;
+	current_list_format.set(DEFAULT_LIST_FORMAT);
 }
 
 HtmlGenerator::~HtmlGenerator() {
@@ -901,6 +902,6 @@ void HtmlGenerator::terminator() {
 			tag_stack.pop();
 		}
 
-		list_items_counter.clear();
+		list_items_counter.reset();
 	}
 }

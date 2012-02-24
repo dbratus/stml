@@ -12,7 +12,10 @@ class ListFormat {
 	static const size_t MAX_GENERATORS = 6;
 
 	AbstractListIndexGenerator* generators[MAX_GENERATORS];
-	AbstractListIndexGenerator* default_generator;
+	size_t generators_count;
+
+	static AbstractListIndexGenerator* create_generator(const wchar_t* format_segment);
+	void delete_generators();
 
 public:
 
@@ -31,9 +34,7 @@ public:
 	 *
 	 * @param level Level of the item.
 	 */
-	inline AbstractListIndexGenerator* generator(int level) const {
-		return (level < MAX_GENERATORS) ? generators[level] : default_generator;
-	}
+	AbstractListIndexGenerator* generator(int level) const;
 };
 
 }

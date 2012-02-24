@@ -26,7 +26,9 @@ public:
         LIST_INDEX_OVERFLOW,
         MAX_HEADER_DEPTH_EXCEEDED,
         MAX_LIST_DEPTH_EXCEEDED,
-        LIST_LEVEL_HOP
+        LIST_LEVEL_HOP,
+        FORMAT_IS_NOT_SET_FOR_LIST_LEVEL,
+        INVALID_LIST_FORMAT
     };
 
 private:

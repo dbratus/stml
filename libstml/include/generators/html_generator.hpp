@@ -19,7 +19,7 @@
 #define HTML_SHY ("&shy;")
 #define CLASS_STRLEN (5)
 #define STYLE_STRLEN (5)
-#define DEFAULT_LIST_FORMAT (L"")
+#define DEFAULT_LIST_FORMAT (L"#./.#./.#./.#./.#./.#.")
 
 namespace stml {
 
