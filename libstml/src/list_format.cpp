@@ -100,7 +100,7 @@ void ListFormat::set(const wchar_t* format) {
 	delete_generators();
 
 	static const size_t MAX_LENGTH = 4 * MAX_GENERATORS;
-	static const size_t MAX_SEGMENT_LENGTH = 3;
+	static const size_t MAX_SEGMENT_LENGTH = 5;
 
 	wchar_t lvl_fmt[MAX_SEGMENT_LENGTH + 1] = L"";
 	size_t seg_i = 0;

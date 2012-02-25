@@ -831,7 +831,10 @@ void HtmlGenerator::close_document() {
 }
 
 void HtmlGenerator::refresh_list_format() {
-
+	if (list_format_changed) {
+		current_list_format.set(var[list_format].markup.get_text());
+		list_format_changed = false;
+	}
 }
 
 void HtmlGenerator::ordered_list_item(int level) {
@@ -845,15 +848,18 @@ void HtmlGenerator::ordered_list_item(int level) {
 		throw StmlException(StmlException::LIST_LEVEL_HOP);
 	}
 
-	list_items_counter.increment(level);
-
 	if (level < current_level) {
-		int pops_count = (current_level - level) * 2;
+		int pops_count = (current_level - level) * 2 + 1;
 
 		for (int i = 0; i < pops_count; ++i) {
 			renderers[tag_stack.top()]->close(this);
 			tag_stack.pop();
 		}
+
+		TagRenderers item_renderer = (TagRenderers)(TAG_RENDERER_ORDERED_LIST_ITEM_L1 + level - 1);
+
+		renderers[item_renderer]->open(this, NULL, NULL, 0, true, false);
+		tag_stack.push(item_renderer);
 	} else if (level > current_level) {
 		renderers[TAG_RENDERER_ORDERED_ML_LIST]->open(this, NULL, NULL, 0, true, false);
 		tag_stack.push(TAG_RENDERER_ORDERED_ML_LIST);
@@ -862,29 +868,32 @@ void HtmlGenerator::ordered_list_item(int level) {
 
 		renderers[item_renderer]->open(this, NULL, NULL, 0, true, false);
 		tag_stack.push(item_renderer);
-
-		refresh_list_format();
-
-		markup << L"<span ";
-
-		if (!var[html_li_index_class].markup.empty()) {
-			markup << L"class='" << var[html_li_index_class].markup << L"' ";
-		}
-
-		if (!var[html_li_index_style].markup.empty()) {
-			markup << L"style='" << var[html_li_index_style].markup << L"' ";
-		}
-
-		markup
-			<< L">"
-			<< current_list_format.generator(level)->generate_index(list_items_counter.current_item_path())
-			<< L"</span>";
 	} else {
 		TagRenderers item_renderer = tag_stack.top();
 
 		renderers[item_renderer]->close(this);
 		renderers[item_renderer]->open(this, NULL, NULL, 0, true, false);
 	}
+
+	place_line_break = false;
+	list_items_counter.increment(level);
+
+	refresh_list_format();
+
+	markup << L"<span ";
+
+	if (!var[html_li_index_class].markup.empty()) {
+		markup << L"class='" << var[html_li_index_class].markup << L"' ";
+	}
+
+	if (!var[html_li_index_style].markup.empty()) {
+		markup << L"style='" << var[html_li_index_style].markup << L"' ";
+	}
+
+	markup
+		<< L">"
+		<< current_list_format.generator(level)->generate_index(list_items_counter.current_item_path())
+		<< L"</span>";
 }
 
 void HtmlGenerator::unordered_list_item(int level) {

@@ -114,14 +114,12 @@ void TagParserState::init_current_tag(ParserData& parser_data) {
 		parser_data.parse_text = false;
 	} else if (all_chars_equal(current_string, L'#')) {
 		current_tag = TAG_ORDERED_LIST_ITEM;
-
-		current_string.clear();
 		((OrderedListItemTag*)tags[current_tag].get())->set_level(current_string.size());
+		current_string.clear();
 	} else if (all_chars_equal(current_string, L'*')) {
 		current_tag = TAG_UNORDERED_LIST_ITEM;
-
-		current_string.clear();
 		((UnorderedListItemTag*)tags[current_tag].get())->set_level(current_string.size());
+		current_string.clear();
 	} else {
 		current_tag = get_tag_by_name(current_string);
 
