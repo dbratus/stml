@@ -91,7 +91,7 @@ class HtmlGenerator: public AbstractGenerator {
         const virtual char *tag_name() =0;
         virtual var_id_t class_parameter(HtmlGenerator *generator) =0;
         virtual var_id_t style_parameter(HtmlGenerator *generator) =0;
-        const virtual char *static_style();
+        virtual const char *static_style() const;
     public:
         virtual void open(HtmlGenerator *generator, const char *attr_names[], const char *attr_values[], size_t attr_count, bool end, bool close);
         virtual void line(HtmlGenerator *generator);
@@ -339,7 +339,7 @@ class HtmlGenerator: public AbstractGenerator {
 
 		var_id_t class_parameter(HtmlGenerator *generator);
 		var_id_t style_parameter(HtmlGenerator *generator);
-		const char *static_style();
+		const char *static_style() const;
 	public:
 		OrderedListItemRenderer(int level) :
 				TagRenderer() {

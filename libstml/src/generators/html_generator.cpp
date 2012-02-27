@@ -215,13 +215,22 @@ void HtmlGenerator::TagRenderer::write_open(
 		*(generator->out) << "' ";
 	}
 
+	const char* st_style = static_style();
+
 	v = style_parameter(generator);
-	if (v != UNKNOWN_VAR && !generator->var[v].as_string().empty()) {
+	bool style_var_set = v != UNKNOWN_VAR && !generator->var[v].as_string().empty();
+
+	if (style_var_set || st_style[0]) {
 
 		*(generator->out) << "style='";
 
-		*(generator->out) << static_style();
-		generator->var[v].markup.write(*(generator->out));
+		if (st_style[0]) {
+			*(generator->out) << static_style();
+		}
+
+		if (style_var_set) {
+			generator->var[v].markup.write(*(generator->out));
+		}
 
 		for (size_t i = 0; i < attr_count; ++i) {
 			if (char_traits<char>::compare(attr_names[i], "style", STYLE_STRLEN) == 0) {
@@ -269,7 +278,7 @@ void HtmlGenerator::TagRenderer::close(HtmlGenerator* generator) {
 	write_close(*(generator->out), tag_name());
 }
 
-const char* HtmlGenerator::TagRenderer::static_style() {
+const char* HtmlGenerator::TagRenderer::static_style() const {
 	return "";
 }
 
@@ -434,7 +443,7 @@ var_id_t HtmlGenerator::OrderedListItemRenderer::style_parameter(HtmlGenerator* 
 	return vars[level - 1];
 }
 
-const char* HtmlGenerator::OrderedListItemRenderer::static_style() {
+const char* HtmlGenerator::OrderedListItemRenderer::static_style() const {
 	return "list-style-type: none;list-style-image: none;";
 }
 
@@ -832,7 +841,7 @@ void HtmlGenerator::close_document() {
 
 void HtmlGenerator::refresh_list_format() {
 	if (list_format_changed) {
-		current_list_format.set(var[list_format].markup.get_text());
+		current_list_format.set(var[list_format].as_string().c_str());
 		list_format_changed = false;
 	}
 }
@@ -897,7 +906,47 @@ void HtmlGenerator::ordered_list_item(int level) {
 }
 
 void HtmlGenerator::unordered_list_item(int level) {
-	//TODO: Implement.
+	if (level > MAX_ML_LIST_DEPTH) {
+		throw StmlException(StmlException::MAX_LIST_DEPTH_EXCEEDED);
+	}
+
+	int current_level = list_items_counter.current_item_path().size();
+
+	if (level - current_level > 1) {
+		throw StmlException(StmlException::LIST_LEVEL_HOP);
+	}
+
+	if (level < current_level) {
+		int pops_count = (current_level - level) * 2 + 1;
+
+		for (int i = 0; i < pops_count; ++i) {
+			renderers[tag_stack.top()]->close(this);
+			tag_stack.pop();
+		}
+
+		TagRenderers item_renderer = (TagRenderers)(TAG_RENDERER_UNORDERED_LIST_ITEM_L1 + level - 1);
+
+		renderers[item_renderer]->open(this, NULL, NULL, 0, true, false);
+		tag_stack.push(item_renderer);
+	} else if (level > current_level) {
+		TagRenderers list_renderer = (TagRenderers)(TAG_RENDERER_UNORDERED_ML_LIST_L1 + level - 1);
+
+		renderers[list_renderer]->open(this, NULL, NULL, 0, true, false);
+		tag_stack.push(list_renderer);
+
+		TagRenderers item_renderer = (TagRenderers)(TAG_RENDERER_UNORDERED_LIST_ITEM_L1 + level - 1);
+
+		renderers[item_renderer]->open(this, NULL, NULL, 0, true, false);
+		tag_stack.push(item_renderer);
+	} else {
+		TagRenderers item_renderer = tag_stack.top();
+
+		renderers[item_renderer]->close(this);
+		renderers[item_renderer]->open(this, NULL, NULL, 0, true, false);
+	}
+
+	place_line_break = false;
+	list_items_counter.increment(level);
 }
 
 void HtmlGenerator::terminator() {
