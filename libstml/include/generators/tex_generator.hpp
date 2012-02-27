@@ -8,6 +8,7 @@
 #include "../../include/markup_builder.hpp"
 #include "../../include/languages/language.hpp"
 #include "../../include/languages/tokenizer.hpp"
+#include "../../include/variables_manager.hpp"
 
 #include <memory>
 #include <map>
@@ -33,23 +34,9 @@ class TexGenerator : public AbstractGenerator {
         TEX_RENDERER_RULE,
         TEX_RENDERER_STML_SECTION,
         TEX_RENDERER_COMMENT,
-        TEX_RENDERER_PARAMETER,
+        TEX_RENDERER_VARIABLE,
         TEX_RENDERER_LINK,
         TEX_RENDERERS_COUNT
-    };
-
-    enum Parameters {
-        PARAM_UNKNOWN,
-        PARAM_CHAPTER_LINE_SKIP,
-        PARAM_CHAPTER_SUBTITLE_FORMAT,
-        PARAM_CHAPTER_NUMBERS,
-        PARAM_SECTION_NUMBERS,
-        PARAM_SUBSECTION_NUMBERS,
-        PARAM_SUBSUBSECTION_NUMBERS,
-        PARAM_BR_SIZE,
-        PARAM_HR_HEIGHT,
-        PARAM_HR_WIDTH,
-        PARAMS_COUNT
     };
 
     class TexRenderer {
@@ -98,14 +85,23 @@ class TexGenerator : public AbstractGenerator {
     std::stack<TexRenderers, std::vector<TexRenderers> > tag_stack;
     std::auto_ptr<Language> language;
     std::auto_ptr<Tokenizer> tokenizer;
-    Parameter parameters[PARAMS_COUNT];
     TexRendererPtr renderers[TEX_RENDERERS_COUNT];
 
-    Parameters current_parameter;
+    var_id_t tex_chapter_line_skip;
+    var_id_t tex_chapter_subtitle_format;
+    var_id_t tex_chapter_numbers;
+    var_id_t tex_section_numbers;
+    var_id_t tex_subsection_numbers;
+    var_id_t tex_subsubsection_numbers;
+    var_id_t tex_br_size;
+    var_id_t tex_hr_width;
+    var_id_t tex_hr_height;
+
+    VariablesManager var;
+    var_id_t current_var;
     bool continue_line;
     bool place_line_break;
 
-    Parameters get_parameter_by_name(const std::wstring& name) const;
     void decorate_text();
 
 public:

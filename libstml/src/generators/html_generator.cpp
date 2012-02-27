@@ -596,7 +596,7 @@ void HtmlGenerator::variable(const wstring& name) {
 			list_format_changed = true;
 		}
 	}
-	tag_stack.push(TAG_RENDERER_PARAMETER);
+	tag_stack.push(TAG_RENDERER_VARIABLE);
 	place_line_break = false;
 }
 
