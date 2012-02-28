@@ -32,8 +32,8 @@ TexGenerator::TexGenerator()
     renderers[TEX_RENDERER_QUOTATION].reset(new EnvironmentRenderer("quotation"));
     renderers[TEX_RENDERER_VERSE].reset(new EnvironmentRenderer("verse"));
     renderers[TEX_RENDERER_VERBATIM].reset(new EnvironmentRenderer("verbatim"));
-    renderers[TEX_RENDERER_ITEMIZE].reset(new EnvironmentRenderer("itemize"));
-    renderers[TEX_RENDERER_ENUMERATE].reset(new EnvironmentRenderer("enumerate"));
+    renderers[TEX_RENDERER_ITEMIZE].reset(new ListRenderer("itemize"));
+    renderers[TEX_RENDERER_ENUMERATE].reset(new ListRenderer("enumerate"));
 
     tex_chapter_line_skip = var.reset(L"tex_chapter_line_skip", L"");
     tex_chapter_subtitle_format = var.reset(L"tex_chapter_subtitle_format", L"");
@@ -50,7 +50,7 @@ TexGenerator::TexGenerator()
 }
 
 TexGenerator::~TexGenerator() {
-
+	//Do nothing.
 }
 
 void TexGenerator::TexRenderer::line(TexGenerator* generator) {
@@ -105,6 +105,12 @@ void TexGenerator::EnvironmentRenderer::begin(TexGenerator* generator) {
 
 void TexGenerator::EnvironmentRenderer::end(TexGenerator* generator) {
     *(generator->out) << "\\end{" << environment << "}" << endl << endl;
+}
+
+void TexGenerator::ListRenderer::line(TexGenerator* generator) {
+	*(generator->out) << "\\item ";
+	generator->markup.write(*(generator->out));
+	*(generator->out) << endl;
 }
 
 void TexGenerator::document() {
@@ -241,13 +247,15 @@ void TexGenerator::close_tag() {
 
     TexRenderers top = tag_stack.top();
 
-    //If there is a renderer for the tag currently on top,
-    //render closing tag.
-    if (renderers[top].get()) {
-        renderers[top]->end(this);
-    }
+    if (top != TEX_RENDERER_ITEMIZE && top != TEX_RENDERER_ENUMERATE) {
+		//If there is a renderer for the tag currently on top,
+		//render closing tag.
+		if (renderers[top].get()) {
+			renderers[top]->end(this);
+		}
 
-    tag_stack.pop();
+		tag_stack.pop();
+    }
 
     current_var = UNKNOWN_VAR;
 }
@@ -336,8 +344,7 @@ void TexGenerator::decorate_text() {
                 );
                 hyphenate_next_word = false;
             }
-        }
-        else if (current_token.type == SINGLE_CHAR_TOKEN) {
+        } else if (current_token.type == SINGLE_CHAR_TOKEN) {
             if (after_word && text[current_token.start] == L'-') {
                 language->hyphenate(
                     markup,
@@ -348,8 +355,7 @@ void TexGenerator::decorate_text() {
                 hyphenate_next_word = true;
             }
             after_word = false;
-        }
-        else if (current_token.type == WHITESPACE_TOKEN) {
+        } else if (current_token.type == WHITESPACE_TOKEN) {
             if (after_word && hyphenate_next_word) {
                 language->hyphenate(
                     markup,
@@ -373,12 +379,10 @@ void TexGenerator::line_end() {
         //render default paragraph.
         paragraph(ALIGN_DEFAULT);
         close_tag();
-    }
-    else {
+    } else {
         if (current_var != UNKNOWN_VAR) {
             var[current_var].markup << markup;
-        }
-        else {
+        } else {
             TexRenderers top = tag_stack.top();
             //If there is a renderer for the tag currently on top,
             //render the line within tag.
@@ -390,8 +394,7 @@ void TexGenerator::line_end() {
             //the next not empty line will start with line break.
             if (!continue_line && !markup.empty()){
                 place_line_break = true;
-            }
-            else {
+            } else {
                 place_line_break = false;
             }
             continue_line = false;
@@ -402,17 +405,55 @@ void TexGenerator::line_end() {
 }
 
 void TexGenerator::close_document() {
+	//Do nothing.
+}
 
+void TexGenerator::ml_list(TexRenderers renderer, int level) {
+	if (level > MAX_ML_LIST_DEPTH) {
+		throw StmlException(StmlException::MAX_LIST_DEPTH_EXCEEDED);
+	}
+
+	int current_level = list_items_counter.current_item_path().size();
+
+	if (level - current_level > 1) {
+		throw StmlException(StmlException::LIST_LEVEL_HOP);
+	}
+
+	if (level < current_level) {
+		int pops_count = current_level - level;
+
+		for (int i = 0; i < pops_count; ++i) {
+			renderers[tag_stack.top()]->end(this);
+			tag_stack.pop();
+		}
+	} else if (level > current_level) {
+		((EnvironmentRenderer*)renderers[renderer].get())->begin(this);
+		tag_stack.push(renderer);
+	}
+
+	place_line_break = false;
+	list_items_counter.increment(level);
 }
 
 void TexGenerator::ordered_list_item(int level) {
-	//TODO: Implement.
+	ml_list(TEX_RENDERER_ENUMERATE, level);
 }
 
 void TexGenerator::unordered_list_item(int level) {
-	//TODO: Implement.
+	ml_list(TEX_RENDERER_ITEMIZE, level);
 }
 
 void TexGenerator::terminator() {
-	//TODO: Implement.
+	//If the current item path is not empty,
+	//than this is the end of a multilevel list.
+	if (!list_items_counter.current_item_path().empty()) {
+		int pops_count = list_items_counter.current_item_path().size();
+
+		for (int i = 0; i < pops_count; ++i) {
+			renderers[tag_stack.top()]->end(this);
+			tag_stack.pop();
+		}
+
+		list_items_counter.reset();
+	}
 }

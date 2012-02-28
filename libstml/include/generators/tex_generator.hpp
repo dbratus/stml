@@ -9,6 +9,7 @@
 #include "../../include/languages/language.hpp"
 #include "../../include/languages/tokenizer.hpp"
 #include "../../include/variables_manager.hpp"
+#include "../../include/list_items_counter.hpp"
 
 #include <memory>
 #include <map>
@@ -18,7 +19,6 @@
 namespace stml {
 
 class TexGenerator : public AbstractGenerator {
-
     enum TexRenderers {
         TEX_RENDERER_DOCUMENT,
         TEX_RENDERER_CHAPTER,
@@ -38,6 +38,8 @@ class TexGenerator : public AbstractGenerator {
         TEX_RENDERER_LINK,
         TEX_RENDERERS_COUNT
     };
+
+    static const int MAX_ML_LIST_DEPTH = 4;
 
     class TexRenderer {
     public:
@@ -79,6 +81,13 @@ class TexGenerator : public AbstractGenerator {
         void end(TexGenerator* generator);
     };
 
+    class ListRenderer : public EnvironmentRenderer {
+    public:
+    	ListRenderer(const char* environment) : EnvironmentRenderer(environment) { }
+
+    	void line(TexGenerator* generator);
+    };
+
     std::map<int, std::string> quotes;
 
     MarkupBuilder markup;
@@ -86,6 +95,7 @@ class TexGenerator : public AbstractGenerator {
     std::auto_ptr<Language> language;
     std::auto_ptr<Tokenizer> tokenizer;
     TexRendererPtr renderers[TEX_RENDERERS_COUNT];
+    ListItemsCounter list_items_counter;
 
     var_id_t tex_chapter_line_skip;
     var_id_t tex_chapter_subtitle_format;
@@ -103,6 +113,7 @@ class TexGenerator : public AbstractGenerator {
     bool place_line_break;
 
     void decorate_text();
+    void ml_list(TexRenderers renderer, int level);
 
 public:
     TexGenerator();
