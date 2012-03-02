@@ -102,6 +102,18 @@ bool TagParserState::all_chars_equal(const wstring& str, wchar_t c) {
 	return true;
 }
 
+bool TagParserState::is_ignoring_text_parsing(Tags tag) {
+	static const Tags tags_ignoring_parsing[] = { TAG_PREFORMATED, TAG_LINK };
+
+	for (size_t i = 0; i < sizeof(tags_ignoring_parsing)/sizeof(Tags); ++i) {
+		if (tag == tags_ignoring_parsing[i]) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
 void TagParserState::init_current_tag(ParserData& parser_data) {
 	if (current_string[0] == L'$') {
 		current_tag = TAG_VARIABLE;
@@ -126,6 +138,8 @@ void TagParserState::init_current_tag(ParserData& parser_data) {
 		if (current_tag == TAG_UNKNOWN) {
 			throw StmlException(StmlException::UNKNOWN_TAG);
 		}
+
+		parser_data.parse_text = !is_ignoring_text_parsing(current_tag);
 
 		current_string.clear();
 		tags[current_tag]->set_defaults();

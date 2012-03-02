@@ -94,9 +94,6 @@ public:
 };
 
 class TagParserState : public AbstractParserState {
-	static const size_t DEFAULT_TAG_NAME_LENGTH = 10;
-	static const size_t MAX_ARGC = 10;
-
 	enum Tags {
 		TAG_DOCUMENT,
 		TAG_HEADER,
@@ -119,6 +116,9 @@ class TagParserState : public AbstractParserState {
 		TAGS_COUNT,
 		TAG_UNKNOWN
 	};
+
+	static const size_t DEFAULT_TAG_NAME_LENGTH = 10;
+	static const size_t MAX_ARGC = 10;
 
 	friend Tags get_tag_by_name(const std::wstring& tag_name);
 
@@ -270,6 +270,7 @@ class TagParserState : public AbstractParserState {
 	bool closed;
 	bool opened;
 
+	static bool is_ignoring_text_parsing(Tags tag);
 	static bool all_chars_equal(const std::wstring& str, wchar_t c);
 	void init_current_tag(ParserData& parser_data);
 
