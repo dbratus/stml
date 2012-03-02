@@ -302,7 +302,7 @@ void TexGenerator::close_bold() {
 }
 
 void TexGenerator::open_italic() {
-    markup.next_char().prepend("\\empth{");
+    markup.next_char().prepend("{\\em");
 }
 
 void TexGenerator::close_italic() {
