@@ -24,6 +24,8 @@ const char* get_error_message(StmlException::Codes code) {
         return "Inline tag already exists";
     case StmlException::UNSUPPORTED_HEADER_LEVEL:
         return "Unsupported header level";
+    case StmlException::VARIABLE_NOT_DECLARED:
+    	return "Variable is not declared";
     default:
         return "";
     }

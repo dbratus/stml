@@ -53,7 +53,6 @@ void Parser::parse(istream& in, ostream& out) {
 
                     if (current_state == PARSER_STATE_TAG) {
                         data.is_tag_line = true;
-                        data.parse_text = true;
                         data.tag_mode = get_tag_mode_by_tag_open(c);
                     }
 
@@ -65,12 +64,12 @@ void Parser::parse(istream& in, ostream& out) {
             if (data.is_tag_line) {
                 if (current_state == PARSER_STATE_TEXT || current_state == PARSER_STATE_AS_IS_TEXT) {
                     generator->close_tag();
+                    data.parse_text = true;
                 } else if (current_state == PARSER_STATE_INLINE_TAG) {
                     generator->close_inline_tag();
                     generator->close_tag();
                 }
-            }
-            else {
+            } else {
                 if (current_state == PARSER_STATE_INLINE_TAG) {
                     generator->close_inline_tag();
                 }

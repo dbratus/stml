@@ -31,7 +31,7 @@ TagParserState::TagParserState() {
 	tags[TAG_HEADER].reset(new HeaderTag());
 	tags[TAG_PARAGRAPH].reset(new ParagraphTag());
 	tags[TAG_LINK].reset(new LinkTag());
-	tags[TAG_VARIABLE].reset(new ParameterTag());
+	tags[TAG_VARIABLE].reset(new VariableTag());
 	tags[TAG_CITE].reset(new CiteTag());
 	tags[TAG_VERSE].reset(new VerseTag());
 	tags[TAG_PREFORMATED].reset(new PreformatedTag());
@@ -152,7 +152,7 @@ ParserStates TagParserState::process_char(wchar_t c, AbstractGeneratorPtr& gener
 
 		return PARSER_STATE_TAG;
 	} else if (closed) {
-		if (is_tag_open(c)) {
+		if (is_tag_open(c) && parser_data.parse_text) {
 			return PARSER_STATE_INLINE_TAG;
 		} else {
 			if (parser_data.parse_text) {
@@ -232,16 +232,16 @@ void TagParserState::LinkTag::commit(AbstractGeneratorPtr& generator) {
 	generator->link(link_name);
 }
 
-void TagParserState::ParameterTag::set_defaults() {
-	parameter_name.clear();
+void TagParserState::VariableTag::set_defaults() {
+	var_name.clear();
 }
 
-void TagParserState::ParameterTag::set_arg(const wstring& arg) {
-	parameter_name = arg;
+void TagParserState::VariableTag::set_arg(const wstring& arg) {
+	var_name = arg;
 }
 
-void TagParserState::ParameterTag::commit(AbstractGeneratorPtr& generator) {
-	generator->variable(parameter_name);
+void TagParserState::VariableTag::commit(AbstractGeneratorPtr& generator) {
+	generator->variable(var_name);
 }
 
 void TagParserState::CiteTag::commit(AbstractGeneratorPtr& generator) {

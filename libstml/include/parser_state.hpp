@@ -159,8 +159,8 @@ class TagParserState : public AbstractParserState {
 		void commit(AbstractGeneratorPtr& generator);
 	};
 
-	class ParameterTag : public AbstractTag {
-		std::wstring parameter_name;
+	class VariableTag : public AbstractTag {
+		std::wstring var_name;
 
 	public:
 		void set_defaults();
