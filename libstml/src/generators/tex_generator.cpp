@@ -261,15 +261,19 @@ void TexGenerator::close_tag() {
 }
 
 void TexGenerator::inject_variable(const wstring& variable_name) {
-	//TODO: Implement.
+	try {
+		markup << var[variable_name].markup;
+	} catch(const out_of_range&) {
+		throw StmlException(StmlException::VARIABLE_NOT_DECLARED);
+	}
 }
 
 void TexGenerator::open_inline_tag(const wstring& tag_name) {
-	//TODO: Implement.
+	//No any inline tag is supported for now.
 }
 
 void TexGenerator::close_inline_tag() {
-	//TODO: Implement.
+	//No any inline tag is supported for now.
 }
 
 void TexGenerator::text_char(wchar_t c) {

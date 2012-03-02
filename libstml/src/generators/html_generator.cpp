@@ -708,15 +708,13 @@ void HtmlGenerator::close_tag() {
 void HtmlGenerator::inject_variable(const wstring& variable_name) {
 	try {
 		markup << var[variable_name].markup;
-	}
-	catch(const out_of_range&) {
+	} catch(const out_of_range&) {
 		throw StmlException(StmlException::VARIABLE_NOT_DECLARED);
 	}
 }
 
 void HtmlGenerator::open_inline_tag(const wstring& tag_name) {
-	map<wstring, HtmlGenerator::AbstractInlineTag*>::iterator tag =
-			inline_tags.find(tag_name);
+	map<wstring, HtmlGenerator::AbstractInlineTag*>::iterator tag = inline_tags.find(tag_name);
 
 	if (tag != inline_tags.end()) {
 		inline_tag_being_rednered = (*tag).second;
