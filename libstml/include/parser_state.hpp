@@ -17,7 +17,7 @@ enum ParserStates {
 };
 
 inline bool is_space(wchar_t c) {
-	return c == L' ' || c == L'\t';
+	return c == L' ';
 }
 inline bool is_tag_arg_separator(wchar_t c) {
 	return c == L',';
@@ -305,6 +305,8 @@ class TextParserState: public AbstractParserState {
 
 	bool escape;
 	bool ignore_line_continue;
+	int leading_spaces_cnt;
+	bool non_space_encountered;
 
 public:
 	void init(const ParserData& parser_data);

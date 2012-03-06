@@ -464,11 +464,23 @@ ParserStates InlineTagParserState::process_char(wchar_t c, AbstractGeneratorPtr&
 void TextParserState::init(const ParserData& parser_data) {
 	AbstractParserState::init(parser_data);
 
+	non_space_encountered = false;
+	leading_spaces_cnt = 0;
 	escape = false;
 	ignore_line_continue = parser_data.is_tag_line;
 }
 
 ParserStates TextParserState::process_char(wchar_t c, AbstractGeneratorPtr& generator, ParserData& parser_data) {
+	if (!is_space(c) && !non_space_encountered) {
+		non_space_encountered = true;
+
+		if (!is_tag_open(c)) {
+			for (int i = 0; i < leading_spaces_cnt; ++i) {
+				generator->text_char(L' ');
+			}
+		}
+	}
+
 	if (escape) {
 		generator->text_char(c);
 		escape = false;
@@ -492,6 +504,8 @@ ParserStates TextParserState::process_char(wchar_t c, AbstractGeneratorPtr& gene
 		generator->close_italic();
 	} else if (is_stress_mark(c)) {
 		generator->stress_mark();
+	} else if (!non_space_encountered && is_space(c)) {
+		++leading_spaces_cnt;
 	} else {
 		generator->text_char(c);
 	}
