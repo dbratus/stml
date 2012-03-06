@@ -298,7 +298,7 @@ void TexGenerator::text_char(wchar_t c) {
 }
 
 void TexGenerator::open_bold() {
-    markup.next_char().prepend("{\\bfseries");
+    markup.next_char().prepend("{\\bfseries ");
 }
 
 void TexGenerator::close_bold() {
@@ -306,7 +306,7 @@ void TexGenerator::close_bold() {
 }
 
 void TexGenerator::open_italic() {
-    markup.next_char().prepend("{\\em");
+    markup.next_char().prepend("{\\em ");
 }
 
 void TexGenerator::close_italic() {
