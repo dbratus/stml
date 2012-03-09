@@ -99,3 +99,14 @@ void stml::append_wchar_to_utf8(string& target, const wchar_t* str) {
 		++i;
 	}
 }
+
+size_t stml::write_utf8_char(wchar_t in, std::ostream& out) {
+	char c[MAX_UTF8_CHAR_LENGTH];
+	memset(c, 0, MAX_UTF8_CHAR_LENGTH * sizeof(char));
+
+	size_t bytes_written = stml::write_utf8_char(in, c);
+	out << c;
+
+	return bytes_written;
+}
+

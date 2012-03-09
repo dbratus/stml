@@ -44,6 +44,7 @@ void Parser::parse(istream& in, ostream& out) {
             states[current_state]->init(start_state_data);
 
             data.is_tag_line = false;
+            data.as_is = false;
 
             while ((c = reader.next_char())) {
                 ParserStates redirected_to_state = states[current_state]->process_char(c, generator, data);
@@ -63,7 +64,9 @@ void Parser::parse(istream& in, ostream& out) {
 
             if (data.is_tag_line) {
                 if (current_state == PARSER_STATE_TEXT || current_state == PARSER_STATE_AS_IS_TEXT) {
-                    generator->close_tag();
+                	if (!data.as_is) {
+                		generator->close_tag();
+                	}
                     data.parse_text = true;
                 } else if (current_state == PARSER_STATE_INLINE_TAG) {
                     generator->close_inline_tag();

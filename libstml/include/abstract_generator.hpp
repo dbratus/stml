@@ -28,6 +28,7 @@ public:
     virtual ~AbstractGenerator();
 
     void set_output(std::ostream* out);
+    std::ostream* get_output() const;
 
     /**
      * <doc> tag.

@@ -63,6 +63,7 @@ struct ParserData {
 	TagModes tag_mode;
 	bool is_tag_line;
 	bool parse_text;
+	bool as_is;
 };
 
 class AbstractParserState {
@@ -113,6 +114,7 @@ class TagParserState : public AbstractParserState {
 		TAG_ORDERED_LIST_ITEM,
 		TAG_UNORDERED_LIST_ITEM,
 		TAG_TERMINATOR,
+		TAG_AS_IS,
 		TAGS_COUNT,
 		TAG_UNKNOWN
 	};
@@ -122,16 +124,16 @@ class TagParserState : public AbstractParserState {
 
 	friend Tags get_tag_by_name(const std::wstring& tag_name);
 
-	class AbstractTag {
+	class Tag {
 	public:
 		virtual void set_defaults() { }
 		virtual void set_arg(const std::wstring& arg) { }
-		virtual void commit(AbstractGeneratorPtr& generator) = 0;
+		virtual void commit(AbstractGeneratorPtr& generator) { }
 	};
 
-	typedef std::auto_ptr<AbstractTag> AbstractTagPtr;
+	typedef std::auto_ptr<Tag> AbstractTagPtr;
 
-	class HeaderTag : public AbstractTag {
+	class HeaderTag : public Tag {
 		int level;
 
 	public:
@@ -140,7 +142,7 @@ class TagParserState : public AbstractParserState {
 		void commit(AbstractGeneratorPtr& generator);
 	};
 
-	class ParagraphTag : public AbstractTag {
+	class ParagraphTag : public Tag {
 	protected:
 		Alignment alignment;
 
@@ -150,7 +152,7 @@ class TagParserState : public AbstractParserState {
 		void commit(AbstractGeneratorPtr& generator);
 	};
 
-	class LinkTag : public AbstractTag {
+	class LinkTag : public Tag {
 		std::wstring link_name;
 
 	public:
@@ -159,7 +161,7 @@ class TagParserState : public AbstractParserState {
 		void commit(AbstractGeneratorPtr& generator);
 	};
 
-	class VariableTag : public AbstractTag {
+	class VariableTag : public Tag {
 		std::wstring var_name;
 
 	public:
@@ -173,52 +175,52 @@ class TagParserState : public AbstractParserState {
 		void commit(AbstractGeneratorPtr& generator);
 	};
 
-	class VerseTag : public AbstractTag {
+	class VerseTag : public Tag {
 	public:
 		void commit(AbstractGeneratorPtr& generator);
 	};
 
-	class PreformatedTag : public AbstractTag {
+	class PreformatedTag : public Tag {
 	public:
 		void commit(AbstractGeneratorPtr& generator);
 	};
 
-	class LineBreakTag : public AbstractTag {
+	class LineBreakTag : public Tag {
 	public:
 		void commit(AbstractGeneratorPtr& generator);
 	};
 
-	class OrderedListTag : public AbstractTag {
+	class OrderedListTag : public Tag {
 	public:
 		void commit(AbstractGeneratorPtr& generator);
 	};
 
-	class UnorderedListTag : public AbstractTag {
+	class UnorderedListTag : public Tag {
 	public:
 		void commit(AbstractGeneratorPtr& generator);
 	};
 
-	class CommentTag : public AbstractTag {
+	class CommentTag : public Tag {
 	public:
 		void commit(AbstractGeneratorPtr& generator);
 	};
 
-	class SectionTag : public AbstractTag {
+	class SectionTag : public Tag {
 	public:
 		void commit(AbstractGeneratorPtr& generator);
 	};
 
-	class HorizontalLineTag : public AbstractTag {
+	class HorizontalLineTag : public Tag {
 	public:
 		void commit(AbstractGeneratorPtr& generator);
 	};
 
-	class DocumentTag : public AbstractTag {
+	class DocumentTag : public Tag {
 	public:
 		void commit(AbstractGeneratorPtr& generator);
 	};
 
-	class ImageTag : public AbstractTag {
+	class ImageTag : public Tag {
 		Alignment alignment;
 		int width;
 		int height;
@@ -240,7 +242,7 @@ class TagParserState : public AbstractParserState {
 		void commit(AbstractGeneratorPtr& generator);
 	};
 
-	class OrderedListItemTag : public AbstractTag {
+	class OrderedListItemTag : public Tag {
 		int level;
 
 	public:
@@ -249,7 +251,7 @@ class TagParserState : public AbstractParserState {
 		void set_level(int level);
 	};
 
-	class UnorderedListItemTag : public AbstractTag {
+	class UnorderedListItemTag : public Tag {
 		int level;
 
 	public:
@@ -258,7 +260,7 @@ class TagParserState : public AbstractParserState {
 		void set_level(int level);
 	};
 
-	class TerminatorTag : public AbstractTag {
+	class TerminatorTag : public Tag {
 	public:
 		void commit(AbstractGeneratorPtr& generator);
 	};

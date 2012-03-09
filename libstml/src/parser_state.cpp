@@ -2,6 +2,7 @@
 #include "../include/stml_exception.hpp"
 #include "../include/parser_state.hpp"
 #include "../include/abstract_generator.hpp"
+#include "../include/utf8.hpp"
 
 using namespace std;
 using namespace stml;
@@ -45,6 +46,7 @@ TagParserState::TagParserState() {
 	tags[TAG_ORDERED_LIST_ITEM].reset(new OrderedListItemTag());
 	tags[TAG_UNORDERED_LIST_ITEM].reset(new UnorderedListItemTag());
 	tags[TAG_TERMINATOR].reset(new TerminatorTag());
+	tags[TAG_AS_IS].reset(new Tag());
 }
 
 TagParserState::Tags stml::get_tag_by_name(const wstring& tag_name) {
@@ -78,6 +80,8 @@ TagParserState::Tags stml::get_tag_by_name(const wstring& tag_name) {
 		return TagParserState::TAG_IMAGE;
 	} else if (tag_name == L".") {
 		return TagParserState::TAG_TERMINATOR;
+	} else if (tag_name == L"=") {
+		return TagParserState::TAG_AS_IS;
 	}
 
 	return TagParserState::TAG_UNKNOWN;
@@ -103,7 +107,7 @@ bool TagParserState::all_chars_equal(const wstring& str, wchar_t c) {
 }
 
 bool TagParserState::is_ignoring_text_parsing(Tags tag) {
-	static const Tags tags_ignoring_parsing[] = { TAG_PREFORMATED, TAG_LINK };
+	static const Tags tags_ignoring_parsing[] = { TAG_PREFORMATED, TAG_LINK, TAG_AS_IS };
 
 	for (size_t i = 0; i < sizeof(tags_ignoring_parsing)/sizeof(Tags); ++i) {
 		if (tag == tags_ignoring_parsing[i]) {
@@ -157,6 +161,8 @@ ParserStates TagParserState::process_char(wchar_t c, AbstractGeneratorPtr& gener
 		//The tag without name is the closing tag.
 		if (current_tag == TAG_UNKNOWN) {
 			generator->close_tag();
+		} else if (current_tag == TAG_AS_IS) {
+			parser_data.as_is = true;
 		} else {
 			if (!current_string.empty()) {
 				tags[current_tag]->set_arg(current_string);
@@ -518,6 +524,11 @@ void AsIsTextParserState::init(const ParserData& parser_data) {
 }
 
 ParserStates AsIsTextParserState::process_char(wchar_t c, AbstractGeneratorPtr& generator, ParserData& parser_data) {
-	generator->text_char(c);
+	if (!parser_data.as_is){
+		generator->text_char(c);
+	} else {
+		write_utf8_char(c, *(generator->get_output()));
+	}
+
 	return PARSER_STATE_AS_IS_TEXT;
 }

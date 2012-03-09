@@ -28,6 +28,10 @@ void AbstractGenerator::set_output(ostream* out) {
     this->out = out;
 }
 
+ostream* AbstractGenerator::get_output() const {
+	return this->out;
+}
+
 void AbstractGenerator::Parameter::append_markup_to_value(
 		const MarkupBuilder& markup) {
 	if (!value.empty()) {
