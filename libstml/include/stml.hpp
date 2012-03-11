@@ -27,6 +27,7 @@ class CharRangeIndexGenerator;
 class RomanNumbersIndexGenerator;
 class ListItemsCounter;
 class ListFormat;
+struct ImageSize;
 
 typedef std::auto_ptr<AbstractGenerator> AbstractGeneratorPtr;
 typedef std::auto_ptr<AbstractParserState> AbstractParserStatePtr;
@@ -43,8 +44,23 @@ enum GeneratorTypes {
 /**
  * Set of supported alignments.
  */
-enum Alignment {
+enum Alignments {
 	ALIGN_LEFT, ALIGN_RIGHT, ALIGN_CENTER, ALIGN_JUSTIFY, ALIGN_DEFAULT
+};
+
+/**
+ * Set of supported size units.
+ */
+enum Units {
+	SIZE_PX,
+	SIZE_PT,
+	SIZE_PC,
+	SIZE_PR,
+	SIZE_CM,
+	SIZE_MM,
+	SIZE_IN,
+	SIZE_EM,
+	SIZE_EX
 };
 
 /**
@@ -84,7 +100,7 @@ enum ImageTagLines {
  * @param	alignment	String representation of the alignment.
  *
  */
-Alignment parse_alignment(const std::wstring& alignment);
+Alignments parse_alignment(const std::wstring& alignment);
 
 /**
  * Returns Alignment value by its string code.
@@ -98,17 +114,35 @@ Alignment parse_alignment(const std::wstring& alignment);
  * @param	alignment	String representation of the alignment.
  *
  */
-Alignment parse_alignment(const std::string& alignment);
+Alignments parse_alignment(const std::string& alignment);
 
 /**
  * Reads the sequence of digit converting it to an integer value.
  *
- * @param	arg 	The string which the integer is parsed from.
+ * @param	arg 	The string which the integer is read from.
  * @param	from	The index of the first char to parse.
  * @param	number	The parsed number.
  * @return	Number of chars parsed.
  */
 size_t read_number(const std::wstring& arg, size_t from, int& number);
+
+/**
+ * Reads the unit value form string.
+ *
+ * @param	arg 	the string which the using is read from.
+ * @param	from	the index of the first char to parse.
+ * @param	unit	where to store the result.
+ * @return	number of chars parsed.
+ */
+size_t read_unit(const std::wstring& arg, size_t from, Units& unit);
+
+/**
+ * Returns a string value of a unit.
+ *
+ * @param	u	unit value.
+ * @return	string value of the unit.
+ */
+const char* unit_str(Units u);
 
 /**
  * Parses STML from the in stream and generates output to the out stream

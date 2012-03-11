@@ -4,23 +4,17 @@
 #include <iostream>
 #include <string>
 
-#define PARAM_FALSE_VALUE ("n")
-
 namespace stml {
+
+struct ImageSize {
+	int width;
+	int height;
+	Units width_unit;
+	Units height_unit;
+};
 
 class AbstractGenerator {
 protected:
-    class Parameter {
-    public:
-
-        std::wstring name;
-        std::string value;
-
-        void append_markup_to_value(const MarkupBuilder& markup);
-
-        const std::string& as_string() const;
-        bool as_boolean() const;
-    };
 
     std::ostream* out;
 
@@ -48,7 +42,7 @@ public:
      * @param	alignment	Alignment of the text within the paragraph.
      *
      */
-    virtual void paragraph(Alignment alignment) = 0;
+    virtual void paragraph(Alignments alignment) = 0;
 
     /**
      * <link> tag.
@@ -64,7 +58,7 @@ public:
      * @param	alignment	Alignment of the text within the cite.
      *
      */
-    virtual void cite(Alignment alignment) = 0;
+    virtual void cite(Alignments alignment) = 0;
 
     /**
      * <verse> tag.
@@ -132,16 +126,11 @@ public:
     /**
      * <img> tag.
      *
-     * @param	width			Width of the image in pexels or percent.
-     * 							Zero if '?' is specified.
-     * @param	height			Height of the image in pixels or percent.
-     * 							Zero if '?' is specified.
-     * @param	width_percent	Indicates whether width is specified in percent.
-     * @param	height_percent	Indicates whether height is specified in percent.
-     * @param	alignment		Alignment of the image. ALIGN_DEFAULT if not specified.
+     * @param	size		Size of the image.
+     * @param	alignment	Alignment of the image. ALIGN_DEFAULT if not specified.
      *
      */
-    virtual void image(int width, int height, bool width_percent, bool height_percent, Alignment alignment) = 0;
+    virtual void image(ImageSize* size, Alignments alignment) = 0;
 
     /**
      * <.> tag.

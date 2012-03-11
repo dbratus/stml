@@ -1,7 +1,7 @@
 #include "../include/stml.hpp"
 #include "../include/stml_exception.hpp"
-#include "../include/parser_state.hpp"
 #include "../include/abstract_generator.hpp"
+#include "../include/parser_state.hpp"
 #include "../include/utf8.hpp"
 
 using namespace std;
@@ -306,8 +306,8 @@ void TagParserState::DocumentTag::commit(AbstractGeneratorPtr& generator) {
 
 void TagParserState::ImageTag::set_defaults() {
 	alignment = ALIGN_DEFAULT;
-	width = height = 0;
-	width_percent = height_percent = false;
+	size.width = size.height = 0;
+	size.width_unit = size.height_unit = SIZE_PX;
 }
 
 void TagParserState::ImageTag::parse_size(const wstring& arg) {
@@ -318,8 +318,8 @@ void TagParserState::ImageTag::parse_size(const wstring& arg) {
 
 	int w = 0;
 	int h = 0;
-	bool wprc = false;
-	bool hprc = false;
+	Units wunit = SIZE_PX;
+	Units hunit = SIZE_PX;
 
 	size_t i = 0;
 
@@ -330,10 +330,7 @@ void TagParserState::ImageTag::parse_size(const wstring& arg) {
 			return;
 		}
 
-		if (arg[i] == L'%') {
-			wprc = true;
-			++i;
-		}
+		i += read_unit(arg, i, wunit);
 	} else {
 		++i;
 	}
@@ -349,20 +346,17 @@ void TagParserState::ImageTag::parse_size(const wstring& arg) {
 
 	if (arg[i] != L'?') {
 		i += read_number(arg, i, h);
-
-		if (i < len && arg[i] == L'%') {
-			hprc = true;
-		}
+		i += read_unit(arg, i, hunit);
 	}
 
-	width = w;
-	height = h;
-	width_percent = wprc;
-	height_percent = hprc;
+	size.width = w;
+	size.height = h;
+	size.width_unit = wunit;
+	size.height_unit = hunit;
 }
 
 void TagParserState::ImageTag::set_arg(const std::wstring& arg) {
-	Alignment al = parse_alignment(arg);
+	Alignments al = parse_alignment(arg);
 
 	if (al != ALIGN_DEFAULT) {
 		alignment = al;
@@ -372,7 +366,7 @@ void TagParserState::ImageTag::set_arg(const std::wstring& arg) {
 }
 
 void TagParserState::ImageTag::commit(AbstractGeneratorPtr& generator) {
-	generator->image(width, height, width_percent, height_percent, alignment);
+	generator->image(&size, alignment);
 }
 
 void TagParserState::OrderedListItemTag::commit(AbstractGeneratorPtr& generator) {

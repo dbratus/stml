@@ -144,7 +144,7 @@ class TagParserState : public AbstractParserState {
 
 	class ParagraphTag : public Tag {
 	protected:
-		Alignment alignment;
+		Alignments alignment;
 
 	public:
 		void set_defaults();
@@ -221,11 +221,8 @@ class TagParserState : public AbstractParserState {
 	};
 
 	class ImageTag : public Tag {
-		Alignment alignment;
-		int width;
-		int height;
-		bool width_percent;
-		bool height_percent;
+		Alignments alignment;
+		ImageSize size;
 
 		/**
 		 * Parses size in format:

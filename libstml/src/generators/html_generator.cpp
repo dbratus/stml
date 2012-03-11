@@ -484,7 +484,7 @@ void HtmlGenerator::header(int level) {
 	place_line_break = false;
 }
 
-const char* HtmlGenerator::alignment_css(Alignment alignment) {
+const char* HtmlGenerator::alignment_css(Alignments alignment) {
 	switch (alignment) {
 	case ALIGN_LEFT:
 		return "text-align:left;";
@@ -499,8 +499,8 @@ const char* HtmlGenerator::alignment_css(Alignment alignment) {
 	}
 }
 
-void HtmlGenerator::open_aligned_tag(TagRenderers renderer, Alignment alignment) {
-	Alignment effective_alignment =
+void HtmlGenerator::open_aligned_tag(TagRenderers renderer, Alignments alignment) {
+	Alignments effective_alignment =
 			(alignment != ALIGN_DEFAULT) ? alignment : parse_alignment(
 					var[html_default_p_alignment].as_string());
 
@@ -512,7 +512,7 @@ void HtmlGenerator::open_aligned_tag(TagRenderers renderer, Alignment alignment)
 	renderers[renderer]->open(this, attr_names, attr_values, 1, true, false);
 }
 
-void HtmlGenerator::paragraph(Alignment alignment) {
+void HtmlGenerator::paragraph(Alignments alignment) {
 	if (tag_stack.empty() || tag_stack.top() != TAG_RENDERER_CITE) {
 		open_aligned_tag(TAG_RENDERER_PARAGRAPH, alignment);
 		tag_stack.push(TAG_RENDERER_PARAGRAPH);
@@ -536,7 +536,7 @@ void HtmlGenerator::link(const wstring& name) {
 	place_line_break = false;
 }
 
-void HtmlGenerator::cite(Alignment alignment) {
+void HtmlGenerator::cite(Alignments alignment) {
 	renderers[TAG_RENDERER_CITE]->open(this, NULL, NULL, 0, true, false);
 	tag_stack.push(TAG_RENDERER_CITE);
 	place_line_break = false;
@@ -600,24 +600,28 @@ void HtmlGenerator::variable(const wstring& name) {
 	place_line_break = false;
 }
 
-void HtmlGenerator::image(int width, int height, bool width_percent,
-		bool height_percent, Alignment alignment) {
-
+void HtmlGenerator::image(ImageSize* size, Alignments alignment) {
 	image_tag_line = IMAGE_TAG_LINE_URL;
 
 	image_style.clear();
 
 	char int_str[MAX_INT_SIZE];
-	if (width > 0) {
-		sprintf(int_str, "%d", width);
-		image_style.append("width:").append(int_str).append(
-				(width_percent) ? "%" : "px") .append(";");
+	if (size->width > 0) {
+		sprintf(int_str, "%d", size->width);
+		image_style
+			.append("width:")
+			.append(int_str)
+			.append(unit_str(size->width_unit))
+			.append(";");
 	}
 
-	if (height > 0) {
-		sprintf(int_str, "%d", height);
-		image_style.append("height:").append(int_str).append(
-				(height_percent) ? "%" : "px") .append(";");
+	if (size->height > 0) {
+		sprintf(int_str, "%d", size->height);
+		image_style
+			.append("height:")
+			.append(int_str)
+			.append(unit_str(size->height_unit))
+			.append(";");
 	}
 
 	if (alignment == ALIGN_LEFT) {
@@ -632,8 +636,7 @@ void HtmlGenerator::image(int width, int height, bool width_percent,
 
 		attr_values[0] = image_style.c_str();
 
-		renderers[TAG_RENDERER_IMAGE]->open(this, attr_names, attr_values, 1,
-				false, false);
+		renderers[TAG_RENDERER_IMAGE]->open(this, attr_names, attr_values, 1, false, false);
 	} else {
 		renderers[TAG_RENDERER_IMAGE]->open(this, NULL, NULL, 0, false, false);
 	}

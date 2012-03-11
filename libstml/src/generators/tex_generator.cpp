@@ -154,7 +154,7 @@ void TexGenerator::header(int level) {
     place_line_break = false;
 }
 
-void TexGenerator::paragraph(Alignment alignment) {
+void TexGenerator::paragraph(Alignments alignment) {
     tag_stack.push(TEX_RENDERER_PARAGRAPH);
     place_line_break = false;
 }
@@ -164,7 +164,7 @@ void TexGenerator::link(const wstring& name) {
     place_line_break = false;
 }
 
-void TexGenerator::cite(Alignment alignment) {
+void TexGenerator::cite(Alignments alignment) {
     tag_stack.push(TEX_RENDERER_QUOTATION);
     ((EnvironmentRenderer*)renderers[TEX_RENDERER_QUOTATION].get())->begin(this);
     place_line_break = false;
@@ -232,7 +232,7 @@ void TexGenerator::variable(const wstring& name) {
     place_line_break = false;
 }
 
-void TexGenerator::image(int width, int height, bool width_percent, bool height_percent, Alignment alignment) {
+void TexGenerator::image(ImageSize* size, Alignments alignment) {
 	//TODO: Implement.
 }
 

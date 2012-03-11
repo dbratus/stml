@@ -31,20 +31,3 @@ void AbstractGenerator::set_output(ostream* out) {
 ostream* AbstractGenerator::get_output() const {
 	return this->out;
 }
-
-void AbstractGenerator::Parameter::append_markup_to_value(
-		const MarkupBuilder& markup) {
-	if (!value.empty()) {
-		value += '\n';
-	}
-
-	markup.append(value);
-}
-
-const string& AbstractGenerator::Parameter::as_string() const {
-	return value;
-}
-
-bool AbstractGenerator::Parameter::as_boolean() const {
-	return value != PARAM_FALSE_VALUE;
-}

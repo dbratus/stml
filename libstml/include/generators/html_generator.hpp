@@ -487,9 +487,9 @@ class HtmlGenerator: public AbstractGenerator {
     ImageTagLines image_tag_line;
     std::string image_style;
 
-	static const char* alignment_css(stml::Alignment alignment);
+	static const char* alignment_css(stml::Alignments alignment);
 
-	void open_aligned_tag(TagRenderers renderer, Alignment alignment);
+	void open_aligned_tag(TagRenderers renderer, Alignments alignment);
 	void generate_doc_header();
 
 	void decorate_text();
@@ -501,9 +501,9 @@ public:
 
 	void document();
 	void header(int level);
-	void paragraph(Alignment alignment);
+	void paragraph(Alignments alignment);
 	void link(const std::wstring& name);
-	void cite(Alignment alignment);
+	void cite(Alignments alignment);
 	void verse();
 	void preformated();
 	void line_break();
@@ -513,7 +513,7 @@ public:
 	void section();
 	void horizontal_line();
 	void variable(const std::wstring& name);
-	void image(int width, int height, bool width_percent, bool height_percent, Alignment alignment);
+	void image(ImageSize* size, Alignments alignment);
 	void ordered_list_item(int level);
 	void unordered_list_item(int level);
 	void terminator();
