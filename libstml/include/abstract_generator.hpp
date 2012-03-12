@@ -16,6 +16,11 @@ struct ImageSize {
 class AbstractGenerator {
 protected:
 
+	class AttributesWriter {
+	public:
+		virtual void write_attributes(std::ostream& out) const = 0;
+	};
+
     std::ostream* out;
 
 public:

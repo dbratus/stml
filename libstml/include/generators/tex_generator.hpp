@@ -36,10 +36,20 @@ class TexGenerator : public AbstractGenerator {
         TEX_RENDERER_COMMENT,
         TEX_RENDERER_VARIABLE,
         TEX_RENDERER_LINK,
+        TEX_RENDERER_IMAGE,
         TEX_RENDERERS_COUNT
     };
 
     static const int MAX_ML_LIST_DEPTH = 4;
+
+    class ImageAttributesWriter : public AttributesWriter {
+    	ImageSize* size;
+
+    public:
+    	void set_size(ImageSize* size);
+
+    	void write_attributes(std::ostream& out) const;
+    };
 
     class TexRenderer {
     public:
@@ -60,7 +70,7 @@ class TexGenerator : public AbstractGenerator {
     public:
         CommandRenderer(const char* command) { this->command = command; }
 
-        void begin(TexGenerator* generator, bool starred);
+        void begin(TexGenerator* generator, const AttributesWriter* attr_writer, bool starred);
         void end(TexGenerator* generator);
     };
 

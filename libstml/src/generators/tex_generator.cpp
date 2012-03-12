@@ -5,6 +5,8 @@
 #include "../../include/generators/tex_generator.hpp"
 #include "../../include/languages/russian/russian_language.hpp"
 
+#include <cstdio>
+
 using namespace std;
 using namespace stml;
 
@@ -34,6 +36,7 @@ TexGenerator::TexGenerator()
     renderers[TEX_RENDERER_VERBATIM].reset(new EnvironmentRenderer("verbatim"));
     renderers[TEX_RENDERER_ITEMIZE].reset(new ListRenderer("itemize"));
     renderers[TEX_RENDERER_ENUMERATE].reset(new ListRenderer("enumerate"));
+    renderers[TEX_RENDERER_IMAGE].reset(new CommandRenderer("includegraphics"));
 
     tex_chapter_line_skip = var.reset(L"tex_chapter_line_skip", L"");
     tex_chapter_subtitle_format = var.reset(L"tex_chapter_subtitle_format", L"");
@@ -66,11 +69,15 @@ void TexGenerator::ParagraphRenderer::end(TexGenerator* generator) {
     *(generator->out) << endl << endl;
 }
 
-void TexGenerator::CommandRenderer::begin(TexGenerator* generator, bool starred) {
+void TexGenerator::CommandRenderer::begin(TexGenerator* generator, const AttributesWriter* attr_writer, bool starred) {
     *(generator->out) << "\\" << command;
 
     if (starred) {
         *(generator->out) << "*";
+    }
+
+    if (attr_writer) {
+    	attr_writer->write_attributes(*(generator->out));
     }
 
     *(generator->out) << "{";
@@ -149,7 +156,7 @@ void TexGenerator::header(int level) {
     }
 
     tag_stack.push(renderer);
-    ((CommandRenderer*)renderers[renderer].get())->begin(this, starred);
+    ((CommandRenderer*)renderers[renderer].get())->begin(this, NULL, starred);
 
     place_line_break = false;
 }
@@ -232,8 +239,42 @@ void TexGenerator::variable(const wstring& name) {
     place_line_break = false;
 }
 
+void TexGenerator::ImageAttributesWriter::set_size(ImageSize* size) {
+	this->size = size;
+}
+
+void TexGenerator::ImageAttributesWriter::write_attributes(std::ostream& out) const {
+	if (size->width > 0 || size->height > 0) {
+		out << "[";
+
+		char int_str[MAX_INT_SIZE];
+
+		if (size->width > 0) {
+			sprintf(int_str, "%d", size->width);
+			out << "width=" << int_str << unit_str(size->width_unit);
+
+			if (size->height > 0) {
+				out << ",";
+			}
+		}
+
+		if (size->height > 0) {
+			sprintf(int_str, "%d", size->height);
+			out << "height=" << int_str << unit_str(size->height_unit);
+		}
+
+		out << "]";
+	}
+}
+
 void TexGenerator::image(ImageSize* size, Alignments alignment) {
-	//TODO: Implement.
+	ImageAttributesWriter attr_writer;
+
+	attr_writer.set_size(size);
+
+    tag_stack.push(TEX_RENDERER_IMAGE);
+    ((CommandRenderer*)renderers[TEX_RENDERER_IMAGE].get())->begin(this, &attr_writer, false);
+    place_line_break = false;
 }
 
 void TexGenerator::close_tag() {
