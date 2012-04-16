@@ -105,15 +105,7 @@ public:
 	 * @throws	out_of_range if the variable with the specified ID
 	 *          does not exist.
 	 */
-	inline Variable& operator[](const std::wstring name) {
-		for (std::vector<Variable>::iterator v = vars.begin();v != vars.end(); ++v) {
-			if (v->name == name) {
-				return *v;
-			}
-		}
-
-		throw std::out_of_range("name");
-	}
+	Variable& operator[](const std::wstring name);
 
 	/**
 	 * Creates or resets a variable. If the variable with the specified
@@ -121,11 +113,19 @@ public:
 	 * If the value already exists, its value is reset to the specified
 	 * default.
 	 *
-	 * @param	name			Name of the variable.
-	 * @param	default_value	Value to be assigned to the variable.
-	 * @return	ID of the variable.
+	 * @param	name			name of the variable.
+	 * @param	default_value	calue to be assigned to the variable.
+	 * @return	id of the variable.
 	 */
 	var_id_t reset(const wchar_t* name, const wchar_t* default_value);
+
+	/**
+	 * Returns id of a variable by name.
+	 *
+	 * @param name name of a varable.
+	 * @return id of the variable or UNKNOWN_VAR if such variable doesn't exist.
+	 */
+	var_id_t get_by_name(const wchar_t* name);
 };
 
 }

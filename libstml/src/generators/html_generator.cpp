@@ -589,8 +589,15 @@ void HtmlGenerator::horizontal_line() {
 
 void HtmlGenerator::variable(const wstring& name) {
 	current_var = UNKNOWN_VAR;
+
 	if (!name.empty()) {
-		current_var = var.reset(name.c_str(), L"");
+		current_var = var.get_by_name(name.c_str());
+
+		if (current_var == UNKNOWN_VAR) {
+			current_var = var.reset(name.c_str(), L"");
+		} else {
+			var[current_var].markup.clear();
+		}
 
 		if (name == L"list_format") {
 			list_format_changed = true;

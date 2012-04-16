@@ -14,6 +14,26 @@ void VariablesManager::ensure_buffer_size_for_new_var() {
     }
 }
 
+VariablesManager::Variable& VariablesManager::operator[](const std::wstring name) {
+	for (std::vector<Variable>::iterator v = vars.begin();v != vars.end(); ++v) {
+		if (v->name == name) {
+			return *v;
+		}
+	}
+
+	throw std::out_of_range("name");
+}
+
+var_id_t VariablesManager::get_by_name(const wchar_t* name) {
+	for (var_id_t i = 0; i < vars_count; ++i) {
+		if (vars[i].name == name) {
+			return i;
+		}
+	}
+
+	return UNKNOWN_VAR;
+}
+
 var_id_t VariablesManager::reset(const wchar_t* name, const wchar_t* default_value) {
 	ensure_buffer_size_for_new_var();
 
